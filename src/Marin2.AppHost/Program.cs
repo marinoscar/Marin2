@@ -1,7 +1,11 @@
+
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.Luval_Marin2_UI>("luval-marin2-ui");
+var servApp = builder.AddProject<Projects.Luval_Marin2_Services>("Marin2-Services");
 
-builder.AddProject<Projects.Luval_Marin2_Services>("luval-marin2-services");
+var uiApp = builder.AddProject<Projects.Luval_Marin2_UI>("Marin2-UI")
+    .WithReference(servApp);
+
+
 
 builder.Build().Run();
