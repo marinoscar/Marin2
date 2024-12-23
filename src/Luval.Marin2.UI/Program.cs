@@ -1,3 +1,6 @@
+using Luval.AuthMate.Core.Interfaces;
+using Luval.AuthMate.Infrastructure.Data;
+using Luval.AuthMate.Postgres;
 using Luval.Marin2.UI.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 
@@ -14,6 +17,9 @@ namespace Luval.Marin2.UI
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
             builder.Services.AddFluentUIComponents();
+
+            // Add AuthMate Services
+            //builder.Services.AddNpgsql<PostgresAuthMateContext>("authmate");
 
             var app = builder.Build();
 
