@@ -43,7 +43,7 @@ namespace Luval.Marin2.UI.Components.Pages
         public Weather(IHttpClientFactory httpClient)
         {
             _httpClient = httpClient.CreateClient();
-            _httpClient.BaseAddress = new Uri("https+http://Marin2-Services");
+            _httpClient.BaseAddress = new Uri("https+http://marin2-services");
         }
 
         private class WeatherForecast
