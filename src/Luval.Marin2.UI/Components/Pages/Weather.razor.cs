@@ -1,33 +1,44 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using FluentGridToolkit;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel;
 using System.Net.Http;
+using System.Security.Principal;
 using System.Text.Json;
 
 namespace Luval.Marin2.UI.Components.Pages
 {
     public partial class Weather : ComponentBase
     {
-        private IQueryable<WeatherForecast>? forecasts;
+        private IQueryable<WeatherForecast>? forecasts = (new List<WeatherForecast>()).AsQueryable();
+        private FluentGridFilterManager<WeatherForecast> filterManager = default;
+        private readonly HttpClient _httpClient;
 
         protected override async Task OnInitializedAsync()
         {
-            // Simulate asynchronous loading to demonstrate streaming rendering
-            await Task.Delay(500);
-
+            filterManager = new FluentGridFilterManager<WeatherForecast>(forecasts);
             await _httpClient.GetAsync("WeatherForecast").ContinueWith(async response =>
             {
                 if (response.IsCompletedSuccessfully)
                 {
                     var content = await response.Result.Content.ReadAsStringAsync();
-                    forecasts = JsonSerializer.Deserialize<IEnumerable<WeatherForecast>>(content)!.AsQueryable();
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    var value = JsonSerializer.Deserialize<IEnumerable<WeatherForecast>>(content, options)!.ToList();
+
+                    filterManager = new FluentGridFilterManager<WeatherForecast>(value.AsQueryable());
                     StateHasChanged();
                 }
             });
-
         }
 
-        private readonly HttpClient _httpClient;
+        private void OnFilterChange()
+        {
+            // Apply all filters when a change occurs
+            filterManager.ApplyFilters();
+        }
 
         public Weather(IHttpClientFactory httpClient)
         {

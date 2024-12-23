@@ -1,5 +1,8 @@
 ﻿@page "/weather"
+@using FluentGridToolkit.Components
+@using FluentGridToolkit
 @attribute [StreamRendering]
+@rendermode InteractiveServer
 
 <PageTitle>Weather</PageTitle>
 
@@ -7,21 +10,39 @@
 
 <p>This component demonstrates showing data.</p>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <!-- This page is rendered in SSR mode, so the FluentDataGrid component does not offer any interactivity (like sorting). -->
-    <FluentDataGrid Items="@forecasts" GridTemplateColumns="1fr 1fr 1fr 2fr" TGridItem="WeatherForecast">
-        <PropertyColumn Title="Date" Property="@(c => c!.Date)" Align="Align.Start"/>
-        <PropertyColumn Title="Temp. (C)" Property="@(c => c!.TemperatureC)" Align="Align.Center"/>
-        <PropertyColumn Title="Temp. (F)" Property="@(c => c!.TemperatureF)" Align="Align.Center"/>
-        <PropertyColumn Title="Summary" Property="@(c => c!.Summary)" Align="Align.End"/>
+@* Provides the filter manager value for all the items in the grid *@
+<CascadingValue Value="@filterManager">
+
+    <FluentDataGrid Items="@filterManager.Data" ShowHover="true"
+                    Pagination="@pagination"
+                    ResizableColumns="true">
+        <PropertyColumn Property="@(p => p.Date)" Title="Date" Format="yyyy-MM-dd" Sortable="true">
+            <ColumnOptions>
+                <div class="search-box">
+                    <FluentGridDateRangeFilter Property="@(p => p.Date)"
+                                               OnValueChanged="OnFilterChange" />
+                </div>
+            </ColumnOptions>
+        </PropertyColumn>
+        <PropertyColumn Property="@(p => p.TemperatureC)" Title="Temp. (C)" Format="N2" Align="Align.End" Sortable="true">
+        </PropertyColumn>
+        <PropertyColumn Property="@(p => p.TemperatureF)" Title="Temp. (F)" Format="N2" Align="Align.End" Sortable="true">
+        </PropertyColumn>
+        <PropertyColumn Property="@(p => p.Summary)" Title="Summary" Sortable="true">
+            <ColumnOptions>
+                <div class="search-box">
+                    <FluentGridTextFilter Property="@(p => p.Summary)"
+                                          IgnoreCase="true"
+                                          OnValueChanged="OnFilterChange" />
+                </div>
+            </ColumnOptions>
+        </PropertyColumn>
     </FluentDataGrid>
-}
+
+</CascadingValue>
+
+<FluentPaginator State="@pagination" />
 
 @code {
-    
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
 }
