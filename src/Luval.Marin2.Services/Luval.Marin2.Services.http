@@ -1,0 +1,6 @@
+@Luval.Marin2.Services_HostAddress = http://localhost:5014
+
+GET {{Luval.Marin2.Services_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
