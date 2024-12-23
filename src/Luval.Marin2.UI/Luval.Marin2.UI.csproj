@@ -4,12 +4,13 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>26360ae8-9bb4-486e-b4eb-48bb78a235d8</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
     <PackageReference Include="FluentGridToolkit" Version="1.0.0" />
-    <PackageReference Include="Luval.AuthMate.Postgres" Version="1.0.6" />
+    <PackageReference Include="Luval.AuthMate.Postgres" Version="1.0.10" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.*-*" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.*-*" />
   </ItemGroup>
