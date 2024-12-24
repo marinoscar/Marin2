@@ -36,7 +36,10 @@ namespace Luval.Marin2.UI.Components.Auth
         public string NavigateTo { get; set; } = "/auth/google-login";
 
         [Parameter]
-        public Color ButtonColor { get; set; } = Color.Error;
+        public Color IconColor { get; set; } = Color.Fill;
+
+        [Parameter]
+        public Appearance ButtonAppereance { get; set; } = Appearance.Accent;
 
         private void DoLogin()
         {
