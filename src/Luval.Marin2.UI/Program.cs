@@ -62,6 +62,13 @@ namespace Luval.Marin2.UI
 
             app.UseHttpsRedirection();
 
+            /*** AuthMate: Additional configuration  ****/
+            app.MapControllers();
+            app.UseRouting();
+            app.UseAuthorization();
+            app.UseAuthentication();
+            /*** AuthMate:                           ****/
+
             app.UseStaticFiles();
             app.UseAntiforgery();
 

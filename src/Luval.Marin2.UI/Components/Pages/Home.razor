@@ -1,7 +1,16 @@
 ﻿@page "/"
+@inject IHttpContextAccessor context
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new Fluent Blazor app.
+
+<br />
+<GoogleLogin/>
+
+@if(context != null && context?.HttpContext?.User != null && context.HttpContext.User.Identity.IsAuthenticated){
+    <p>Welcome, @context.HttpContext.User.Identity.Name</p>
+}

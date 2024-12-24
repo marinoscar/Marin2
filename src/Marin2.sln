@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marin2.ServiceDefaults", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luval.Marin2", "Luval.Marin2\Luval.Marin2.csproj", "{F66788CB-0C27-45FB-B65A-751D3147A01C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luval.Marin2.UI.Components", "Luval.Marin2.UI.Components\Luval.Marin2.UI.Components.csproj", "{F6E4370A-718A-44C8-8BC9-8DE56E0CB9F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{F66788CB-0C27-45FB-B65A-751D3147A01C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F66788CB-0C27-45FB-B65A-751D3147A01C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F66788CB-0C27-45FB-B65A-751D3147A01C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6E4370A-718A-44C8-8BC9-8DE56E0CB9F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6E4370A-718A-44C8-8BC9-8DE56E0CB9F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6E4370A-718A-44C8-8BC9-8DE56E0CB9F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6E4370A-718A-44C8-8BC9-8DE56E0CB9F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

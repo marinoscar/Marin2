@@ -11,6 +11,7 @@ using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -127,6 +128,9 @@ public static class Extensions
     /// <returns>The web application with the database initialized.</returns>
     public static WebApplication InitializeDb(this WebApplication app)
     {
+        if (Debugger.IsAttached)
+            Task.Delay(30000).Wait();
+
         var config = app.Services.GetRequiredService<IConfiguration>();
         var logger = app.Services.GetService<ILogger<AuthMateContextHelper>>();
         var conn = config.GetConnectionString("marin2");
