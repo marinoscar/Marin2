@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luval.Marin2", "Luval.Marin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luval.Marin2.UI.Components", "Luval.Marin2.UI.Components\Luval.Marin2.UI.Components.csproj", "{F6E4370A-718A-44C8-8BC9-8DE56E0CB9F0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Aspire", "Aspire", "{9CE28C5B-E849-4B45-81DA-5EA78C3BC5E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{98CA7586-31CA-4C22-9745-B103550FEE0C} = {9CE28C5B-E849-4B45-81DA-5EA78C3BC5E0}
+		{4562017C-9326-4A40-8E22-A495C0509A66} = {9CE28C5B-E849-4B45-81DA-5EA78C3BC5E0}
 	EndGlobalSection
 EndGlobal

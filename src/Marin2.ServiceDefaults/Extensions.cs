@@ -129,7 +129,9 @@ public static class Extensions
     public static WebApplication InitializeDb(this WebApplication app)
     {
         if (Debugger.IsAttached)
+        {
             Task.Delay(15000).Wait();
+        }
 
         var config = app.Services.GetRequiredService<IConfiguration>();
         var logger = app.Services.GetService<ILogger<AuthMateContextHelper>>();

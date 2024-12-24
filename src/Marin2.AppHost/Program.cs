@@ -1,6 +1,10 @@
 
+using Aspire.Hosting;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
+// Add secret for the Parameters:authmate-bearingtokenkey to the user screts to set the value
+var authMateKey = builder.AddParameter("authmate-bearingtokenkey", true);
 
 // Add postgres instance with pgAdmin
 var postgres = builder.AddPostgres("db")
@@ -9,12 +13,12 @@ var postgres = builder.AddPostgres("db")
 
 var authMateDb = postgres.AddDatabase("marin2");
 
-var servApp = builder.AddProject<Projects.Luval_Marin2_Services>("marin2-services");
+// Configure the services project
+var servApp = builder.AddProject<Projects.Luval_Marin2_Services>("marin2-services")
+    .WithEnvironment("authmate-bearingtokenkey", authMateKey);
 
-// Add secret for the Parameters:authmate-bearingtokenkey to the user screts to set the value
-var authMateKey = builder.AddParameter("authmate-bearingtokenkey", true);
 
-
+// Configure the UI project
 var uiApp = builder.AddProject<Projects.Luval_Marin2_UI>("marin2-ui")
     .WithExternalHttpEndpoints()
     .WithReference(servApp)
