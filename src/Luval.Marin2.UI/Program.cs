@@ -1,7 +1,9 @@
 using Luval.AuthMate.Core;
 using Luval.AuthMate.Core.Interfaces;
+using Luval.AuthMate.Infrastructure.Configuration;
 using Luval.AuthMate.Infrastructure.Data;
 using Luval.AuthMate.Postgres;
+using Luval.Marin2.Infrastructure.Configuration;
 using Luval.Marin2.UI.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FluentUI.AspNetCore.Components;
@@ -36,6 +38,15 @@ namespace Luval.Marin2.UI
                     return new PostgresAuthMateContext(connStr ?? string.Empty);
                 });
 
+            var options = builder.Configuration.GetOAuthProvider("Google");
+            if(options == null || string.IsNullOrEmpty(options.ClientSecret)) throw new Exception("Google OAuth configuration not found");
+            builder.Services.AddAuthMateGoogleAuth(new GoogleOAuthConfiguration()
+            {
+                // client id from your config file
+                ClientId = options.ClientId,
+                // the client secret from your config file
+                ClientSecret = options.ClientSecret,
+            });
 
             var app = builder.Build();
 
