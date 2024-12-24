@@ -1,4 +1,5 @@
 using Luval.AuthMate.Infrastructure.Data;
+using Luval.AuthMate.Infrastructure.Logging;
 using Luval.AuthMate.Postgres;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -127,9 +128,11 @@ public static class Extensions
     public static WebApplication InitializeDb(this WebApplication app)
     {
         var config = app.Services.GetRequiredService<IConfiguration>();
+        var logger = app.Services.GetService<ILogger<AuthMateContextHelper>>();
         var conn = config.GetConnectionString("marin2");
         var authMateContext = new PostgresAuthMateContext(conn ?? "");
-        authMateContext.InitializeDbAsync("oscar.marin.saenz@gmail.com").Wait();
+        var contextHelper = new AuthMateContextHelper(authMateContext, logger ?? new NullLogger<AuthMateContextHelper>());
+        contextHelper.InitializeDbAsync("oscar.marin.saenz@gmail.com").Wait();
         return app;
     }
 }
