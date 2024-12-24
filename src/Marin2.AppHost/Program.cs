@@ -6,7 +6,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 var postgres = builder.AddPostgres("db")
     .WithPgAdmin();
 
-var authMateDb = postgres.AddDatabase("authmate");
+var authMateDb = postgres.AddDatabase("marin2");
 
 var servApp = builder.AddProject<Projects.Luval_Marin2_Services>("marin2-services");
 

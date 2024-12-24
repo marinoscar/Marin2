@@ -1,6 +1,8 @@
+using Luval.AuthMate.Infrastructure.Data;
 using Luval.AuthMate.Postgres;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -124,10 +126,10 @@ public static class Extensions
     /// <returns>The web application with the database initialized.</returns>
     public static WebApplication InitializeDb(this WebApplication app)
     {
-        //do this for all of the contexts that are part of the application
-        var authMateContext = app.Services.GetRequiredService<PostgresAuthMateContext>();
-        if(authMateContext != null)
-            authMateContext.InitializeDbAsync("oscar.marin.saenz@gmail.com").Wait();
+        var config = app.Services.GetRequiredService<IConfiguration>();
+        var conn = config.GetConnectionString("marin2");
+        var authMateContext = new PostgresAuthMateContext(conn ?? "");
+        authMateContext.InitializeDbAsync("oscar.marin.saenz@gmail.com").Wait();
         return app;
     }
 }

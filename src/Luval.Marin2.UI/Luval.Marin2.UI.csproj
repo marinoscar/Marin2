@@ -8,11 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
     <PackageReference Include="FluentGridToolkit" Version="1.0.0" />
-    <PackageReference Include="Luval.AuthMate.Postgres" Version="1.0.10" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.*-*" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.*-*" />
+    <PackageReference Include="Luval.AuthMate" Version="1.0.11">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.*-*">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.*-*">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

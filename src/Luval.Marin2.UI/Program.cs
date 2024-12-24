@@ -3,7 +3,9 @@ using Luval.AuthMate.Core.Interfaces;
 using Luval.AuthMate.Infrastructure.Data;
 using Luval.AuthMate.Postgres;
 using Luval.Marin2.UI.Components;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.FluentUI.AspNetCore.Components;
+using Npgsql;
 
 namespace Luval.Marin2.UI
 {
@@ -24,14 +26,15 @@ namespace Luval.Marin2.UI
             builder.Services.AddHttpClient();
             builder.Services.AddHttpContextAccessor();
 
-            // Add AuthMate Services
-            builder.Services.AddNpgsql<PostgresAuthMateContext>("marin2"); // Add the AuthMate database
             //registers all of the services needed for AuthMate
-            builder.Services.AddAuthMateServices(Environment.GetEnvironmentVariable("authmate-bearingtokenkey") ?? string.Empty,
-                (s) => {
-                        var i = s.GetRequiredService<PostgresAuthMateContext>();
-                        return i;
-            });
+            var connStr = builder.Configuration.GetConnectionString("marin2");
+            var key = Environment.GetEnvironmentVariable("authmate-bearingtokenkey");
+            builder.Services.AddAuthMateServices(key ?? string.Empty,
+                (s) =>
+                {
+                    var connStr = builder.Configuration.GetConnectionString("marin2");
+                    return new PostgresAuthMateContext(connStr ?? string.Empty);
+                });
 
 
             var app = builder.Build();
