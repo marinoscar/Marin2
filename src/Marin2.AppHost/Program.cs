@@ -4,6 +4,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 // Add postgres instance with pgAdmin
 var postgres = builder.AddPostgres("db")
+    .WithDataVolume()
     .WithPgAdmin();
 
 var authMateDb = postgres.AddDatabase("marin2");
