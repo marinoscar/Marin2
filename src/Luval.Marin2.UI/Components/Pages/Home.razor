@@ -1,5 +1,5 @@
 ﻿@page "/"
-@inject IHttpContextAccessor context
+@inject IHttpContextAccessor contextAccesor
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
@@ -9,8 +9,17 @@
 Welcome to your new Fluent Blazor app.
 
 <br />
-<GoogleLogin/>
 
-@if(context != null && context?.HttpContext?.User != null && context.HttpContext.User.Identity.IsAuthenticated){
-    <p>Welcome, @context.HttpContext.User.Identity.Name</p>
-}
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            @foreach (var item in context.User.ToUser().UserRoles)
+            {
+                <p>Role Name: @item.Role.Name</p>
+            }
+        </Authorized>
+        <NotAuthorized>
+            <GoogleLogin />
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>

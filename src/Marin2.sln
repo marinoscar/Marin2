@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luval.Marin2.UI.Components"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Aspire", "Aspire", "{9CE28C5B-E849-4B45-81DA-5EA78C3BC5E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luval.Marin2.ChatAgent", "Luval.Marin2.ChatAgent\Luval.Marin2.ChatAgent.csproj", "{83641280-6B5A-4AB6-B47C-2379770C9689}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{F6E4370A-718A-44C8-8BC9-8DE56E0CB9F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6E4370A-718A-44C8-8BC9-8DE56E0CB9F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6E4370A-718A-44C8-8BC9-8DE56E0CB9F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83641280-6B5A-4AB6-B47C-2379770C9689}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83641280-6B5A-4AB6-B47C-2379770C9689}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83641280-6B5A-4AB6-B47C-2379770C9689}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83641280-6B5A-4AB6-B47C-2379770C9689}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
