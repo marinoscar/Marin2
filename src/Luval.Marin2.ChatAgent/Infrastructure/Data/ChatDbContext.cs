@@ -31,6 +31,11 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Data
         public DbSet<Chatbot> Chatbots { get; set; }
 
         /// <summary>
+        /// The DbSet representing the ChatMessageMedia table.
+        /// </summary>
+        public DbSet<ChatMessageMedia> ChatMessageMedias { get; set; }
+
+        /// <summary>
         /// Configures the database context options.
         /// </summary>
         /// <param name="options">The options to be configured.</param>
