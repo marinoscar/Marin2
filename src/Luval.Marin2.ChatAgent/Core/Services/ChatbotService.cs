@@ -36,37 +36,68 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             _mediaService = mediaService;
         }
 
-        public async Task<ChatMessage> RunUserMessageAsync(string message, Chat chatSession, IEnumerable<UploadFile>? files = default, double temperature = 0, CancellationToken cancellationToken = default)
+        public async Task<ChatMessage> RunUserMessageAsync(string message, ChatSession chatSession, IEnumerable<UploadFile>? files = default, double temperature = 0, CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(message))
+                throw new ArgumentException("Message cannot be null or empty", nameof(message));
+            if (chatSession == null)
+                throw new ArgumentNullException(nameof(chatSession));
 
             var settings = new OpenAIPromptExecutionSettings()
             {
                 Temperature = temperature
             };
-            var prepHistory = await PrepareHistoryAsync(chatSession, message, files, cancellationToken);
-            var finishReason = string.Empty;
-            StreamingChatMessageContent? lastContent = null;
-            var sb = new StringBuilder();
-            await foreach (var content in _chatService.GetStreamingChatMessageContentsAsync(prepHistory.History, settings, null, cancellationToken))
+
+            try
             {
-                sb.Append(content.Content);
-                if (content.Metadata != null && content.Metadata.ContainsKey("FinishReason"))
-                    finishReason = Convert.ToString(content.Metadata["FinishReason"]);
-                lastContent = content;
-                OnMessageStream(content);
+                var prepHistory = await PrepareHistoryAsync(chatSession, message, files, cancellationToken);
+                var finishReason = string.Empty;
+                StreamingChatMessageContent? lastContent = null;
+                var sb = new StringBuilder();
+
+                await foreach (var content in _chatService.GetStreamingChatMessageContentsAsync(prepHistory.History, settings, null, cancellationToken))
+                {
+                    sb.Append(content.Content);
+                    if (content.Metadata != null && content.Metadata.ContainsKey("FinishReason"))
+                        finishReason = Convert.ToString(content.Metadata["FinishReason"]);
+                    lastContent = content;
+                    OnMessageStream(content);
+                }
+
+                OnMessageCompleted(lastContent, sb.ToString(), finishReason);
+                prepHistory.History.AddAssistantMessage(sb.ToString());
+                return new ChatMessage();
             }
-            OnMessageCompleted(lastContent, sb.ToString(), finishReason);
-            return new ChatMessage();
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while running user message.");
+                throw;
+            }
         }
 
-        private async Task<ChatHistoryPrep> PrepareHistoryAsync(Chat chatSession, string message, IEnumerable<UploadFile>? files = default, CancellationToken cancellationToken = default)
+        private async Task<ChatHistoryPrep> PrepareHistoryAsync(ChatSession chatSession, string message, IEnumerable<UploadFile>? files = default, CancellationToken cancellationToken = default)
         {
             if (chatSession.Chatbot == null)
                 throw new ArgumentNullException("Chatbot is required", nameof(chatSession.Chatbot));
+            if (string.IsNullOrWhiteSpace(message))
+                throw new ArgumentException("Message cannot be null or empty", nameof(message));
 
             var history = new ChatHistory(chatSession.Chatbot.SystemPrompt ?? GetDefaultSystemPrompt());
             var collection = new ChatMessageContentItemCollection();
             var mediaUploaded = new List<MediaFileInfo>();
+
+            //Load previous messages
+            if (chatSession.ChatMessages != null && chatSession.ChatMessages.Any())
+            {
+                //TODO: Determine what to do with previous messages that have images
+                foreach (var msg in chatSession.ChatMessages)
+                {
+                    history.AddUserMessage(msg.UserMessage);
+                    history.AddAssistantMessage(msg.AgentResponse);
+                }
+            }
+
             if (files != null && files.Any())
             {
                 foreach (var file in files)
@@ -77,8 +108,10 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                     mediaUploaded.Add(info);
                 }
             }
+
             collection.Add(new TextContent(message));
             history.AddUserMessage(collection);
+
             return new ChatHistoryPrep()
             {
                 History = history,
@@ -86,12 +119,22 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             };
         }
 
+        /// <summary>
+        /// Invokes the ChatMessageStream event when a chat message is streamed.
+        /// </summary>
+        /// <param name="streamingChat">The streaming chat message content.</param>
         protected virtual void OnMessageStream(StreamingChatMessageContent? streamingChat)
         {
             if (streamingChat == null) return;
             ChatMessageStream?.Invoke(this, new ChatMessageStreamEventArgs(streamingChat.Content));
         }
 
+        /// <summary>
+        /// Invokes the ChatMessageCompleted event when a chat message is completed.
+        /// </summary>
+        /// <param name="streamingChat">The streaming chat message content.</param>
+        /// <param name="content">The complete content of the chat message.</param>
+        /// <param name="finishReason">The reason the chat message stream was finished.</param>
         protected virtual void OnMessageCompleted(StreamingChatMessageContent? streamingChat, string? content, string? finishReason)
         {
             if (streamingChat == null) return;

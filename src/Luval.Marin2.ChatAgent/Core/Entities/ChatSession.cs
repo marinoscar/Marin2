@@ -13,8 +13,8 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
     /// <summary>
     /// Represents a chat session, which serves as a container for chat messages.
     /// </summary>
-    [Table("Chat")]
-    public class Chat
+    [Table("ChatSession")]
+    public class ChatSession
     {
         /// <summary>
         /// The unique identifier for the chat session.
@@ -108,7 +108,7 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// <summary>
         /// Constructor to initialize control fields.
         /// </summary>
-        public Chat()
+        public ChatSession()
         {
             UtcCreatedOn = DateTime.UtcNow;
             Version = 1;

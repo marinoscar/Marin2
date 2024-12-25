@@ -106,7 +106,7 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// <summary>
         /// The collection of chat sessions associated with the chat agent.
         /// </summary>
-        public ICollection<Chat> Chats { get; set; }
+        public ICollection<ChatSession> ChatSessions { get; set; }
 
         /// <summary>
         /// Constructor to initialize control fields.

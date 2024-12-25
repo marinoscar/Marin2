@@ -18,7 +18,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Data
         /// <summary>
         /// The DbSet representing the Chat table.
         /// </summary>
-        public DbSet<Chat> Chats { get; set; }
+        public DbSet<ChatSession> ChatSessions { get; set; }
 
         /// <summary>
         /// The DbSet representing the ChatMessage table.
@@ -46,9 +46,9 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Data
         {
 
             // Configure ChatMessage relationship with Chatbot
-            modelBuilder.Entity<Chat>()
+            modelBuilder.Entity<ChatSession>()
                .HasOne(cm => cm.Chatbot)
-               .WithMany(c => c.Chats)
+               .WithMany(c => c.ChatSessions)
                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure ChatMessage relationship with Chat

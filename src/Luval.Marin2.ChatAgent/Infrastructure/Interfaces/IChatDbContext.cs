@@ -7,7 +7,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Interfaces
     {
         DbSet<Chatbot> Chatbots { get; set; }
         DbSet<ChatMessage> ChatMessages { get; set; }
-        DbSet<Chat> Chats { get; set; }
+        DbSet<ChatSession> ChatSessions { get; set; }
 
         int SaveChanges();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
