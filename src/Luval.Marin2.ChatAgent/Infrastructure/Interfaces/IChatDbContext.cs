@@ -9,6 +9,11 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Interfaces
         DbSet<ChatMessage> ChatMessages { get; set; }
         DbSet<ChatSession> ChatSessions { get; set; }
 
+        /// <summary>
+        /// The DbSet representing the ChatMessageMedia table.
+        /// </summary>
+        DbSet<ChatMessageMedia> ChatMessageMedias { get; set; }
+
         int SaveChanges();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

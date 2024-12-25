@@ -139,7 +139,6 @@ namespace Luval.Marin2.ChatAgent.Core.Services
 
         #endregion
 
-
         #region ChatSession Methods
 
         /// <summary>
@@ -249,6 +248,118 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 .SingleOrDefaultAsync(x => x.Id == chatSessionId, cancellationToken);
         }
 
+        #endregion
+
+
+        #region ChatMessage Methods
+
+        /// <summary>
+        /// Adds a new chat message to a specified chat session and saves it to the database.
+        /// </summary>
+        /// <param name="chatSessionId">The unique identifier of the chat session to which the message belongs.</param>
+        /// <param name="chatMessage">The chat message entity to add.</param>
+        /// <param name="media">A collection of media entities associated with the chat message. Default to null</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The created chat message entity.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the chat message is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when the chat session ID is invalid.</exception>
+        /// <remarks>
+        /// This method performs the following steps:
+        /// 1. Validates the input parameters. If the chat message is null, it logs an error and throws an ArgumentNullException.
+        ///    If the chat session ID is less than or equal to zero, it logs an error and throws an ArgumentException.
+        /// 2. Sets the creation and update metadata for the chat message, including the creation and update timestamps,
+        ///    the user who created and updated the message, and the version number.
+        /// 3. Sets the chat session ID for the chat message.
+        /// 4. Adds the chat message to the database context and saves the changes asynchronously.
+        /// 5. Logs an informational message indicating the successful creation of the chat message.
+        /// 6. If there are any media entities associated with the chat message, it iterates through each media entity,
+        ///    sets the chat message ID for the media, adds the media to the database context, and saves the changes asynchronously.
+        /// 7. Returns the created chat message entity.
+        /// 
+        /// If an exception occurs during the process, it logs the exception and rethrows it.
+        /// </remarks>
+        public async Task<ChatMessage> AddChatMessageAsync(ulong chatSessionId, ChatMessage chatMessage, IEnumerable<ChatMessageMedia>? media = null, CancellationToken cancellationToken = default)
+        {
+            if (chatMessage == null)
+            {
+                _logger.LogError("ChatMessage cannot be null.");
+                throw new ArgumentNullException(nameof(chatMessage));
+            }
+            if (chatSessionId <= 0)
+            {
+                _logger.LogError("ChatMessage needs a valid chat session reference");
+                throw new ArgumentException(nameof(chatSessionId));
+            }
+            try
+            {
+                chatMessage.UtcCreatedOn = DateTime.UtcNow.ForceUtc();
+                chatMessage.UpdatedBy = _userResolver.GetUserEmail();
+                chatMessage.UtcUpdatedOn = DateTime.UtcNow.ForceUtc();
+                chatMessage.CreatedBy = _userResolver.GetUserEmail();
+                chatMessage.Version = 1;
+
+                chatMessage.ChatSessionId = chatSessionId;
+                await _dbContext.ChatMessages.AddAsync(chatMessage, cancellationToken);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Chat message created successfully with ID {0}.", chatMessage.Id);
+
+                // Add child media
+                if (media != null && media.Any())
+                    foreach (var m in media)
+                    {
+                        m.ChatMessageId = chatMessage.Id;
+                        await AddMessageMediaAsync(chatMessage.Id, m, cancellationToken);
+                        chatMessage.Media.Add(m);
+                    }
+                return chatMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the chat message.");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Adds media to a chat message and saves it to the database.
+        /// </summary>
+        /// <param name="chatMessageId">The unique identifier of the chat message.</param>
+        /// <param name="media">The media entity to add.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The created chat message media entity.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the media is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when the chat message ID is invalid.</exception>
+        public async Task<ChatMessageMedia> AddMessageMediaAsync(ulong chatMessageId, ChatMessageMedia media, CancellationToken cancellationToken = default)
+        {
+            if (media == null)
+            {
+                _logger.LogError("ChatMessageMedia cannot be null.");
+                throw new ArgumentNullException(nameof(media));
+            }
+            if (chatMessageId <= 0)
+            {
+                _logger.LogError("ChatMessageMedia needs a valid chat message reference");
+                throw new ArgumentException(nameof(chatMessageId));
+            }
+            try
+            {
+                media.UtcCreatedOn = DateTime.UtcNow.ForceUtc();
+                media.UpdatedBy = _userResolver.GetUserEmail();
+                media.UtcUpdatedOn = DateTime.UtcNow.ForceUtc();
+                media.CreatedBy = _userResolver.GetUserEmail();
+                media.Version = 1;
+                media.ChatMessageId = chatMessageId;
+                await _dbContext.ChatMessageMedias.AddAsync(media, cancellationToken);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Chat message media created successfully with ID {0}.", media.Id);
+                return media;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the chat message media.");
+                throw;
+            }
+        } 
 
         #endregion
 

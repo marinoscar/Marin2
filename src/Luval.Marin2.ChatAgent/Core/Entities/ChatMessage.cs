@@ -28,13 +28,13 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// The foreign key referencing the chat session.
         /// </summary>
         [Required(ErrorMessage = "ChatId is required.")]
-        [Column("ChatId")]
-        public ulong ChatId { get; set; }
+        [Column("ChatSessionId")]
+        public ulong ChatSessionId { get; set; }
 
         /// <summary>
         /// Navigation property for the associated chat session.
         /// </summary>
-        [ForeignKey(nameof(ChatId))]
+        [ForeignKey(nameof(ChatSessionId))]
         public virtual ChatSession Chat { get; set; }
 
         /// <summary>

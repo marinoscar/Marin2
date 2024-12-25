@@ -60,7 +60,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Data
             modelBuilder.Entity<ChatMessage>()
                 .HasOne(cm => cm.Chat)
                 .WithMany(c => c.ChatMessages)
-                .HasForeignKey(cm => cm.ChatId)
+                .HasForeignKey(cm => cm.ChatSessionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Configure ChatMessageMedia relationship with ChatMessage
