@@ -48,9 +48,16 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// <summary>
         /// The name of the media file.
         /// </summary>
-        [MaxLength(250, ErrorMessage = "Name cannot exceed 250 characters.")]
-        [Column("Name")]
-        public string? Name { get; set; }
+        [MaxLength(500, ErrorMessage = "ProviderFileName cannot exceed 250 characters.")]
+        [Column("ProviderFileName")]
+        public string? ProviderFileName { get; set; }
+
+        /// <summary>
+        /// The name of the media file.
+        /// </summary>
+        [MaxLength(500, ErrorMessage = "Name cannot exceed 250 characters.")]
+        [Column("FileName")]
+        public string? FileName { get; set; }
 
         /// <summary>
         /// The content type of the media (e.g., image/jpeg, application/pdf).
