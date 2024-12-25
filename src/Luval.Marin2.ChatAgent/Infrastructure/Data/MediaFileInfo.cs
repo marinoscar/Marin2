@@ -22,6 +22,11 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Data
         public Uri Uri { get; set; } = default!;
 
         /// <summary>
+        /// Gets or sets the public URI of the media file.
+        /// </summary>
+        public Uri PublicUri { get; set; } = default!;
+
+        /// <summary>
         /// Gets or sets the MD5 hash of the content.
         /// </summary>
         public string? ContentMD5 { get; set; } = default!;
@@ -34,7 +39,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Data
         /// <summary>
         /// Gets or sets the name of the provider's file.
         /// </summary>
-        public string? ProviderFileName { get; set; } = default!;
+        public string ProviderFileName { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the content type of the media file.

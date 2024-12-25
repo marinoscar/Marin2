@@ -22,5 +22,10 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Configuration
         /// The container name for the media service.
         /// </summary>
         public string ContainerName { get; set; } = default!;
+
+        /// <summary>
+        /// The SAS expiration time for the media service.
+        /// </summary>
+        public TimeSpan SASExpiration { get; set; } = TimeSpan.FromHours(1);
     }
 }

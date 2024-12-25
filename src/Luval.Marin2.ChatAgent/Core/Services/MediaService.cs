@@ -131,7 +131,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                     BlobName = providerFileName,
                     Resource = "b",
                     StartsOn = DateTimeOffset.UtcNow,
-                    ExpiresOn = DateTimeOffset.UtcNow.AddHours(1)
+                    ExpiresOn = DateTimeOffset.UtcNow.Add(_config.SASExpiration)
                 };
                 sasBuilder.SetPermissions(BlobSasPermissions.Read);
                 var keyCredential = new Azure.Storage.StorageSharedKeyCredential(_blobContainerClient.AccountName, ExtractAccountKey(_config.ConnectionString));
