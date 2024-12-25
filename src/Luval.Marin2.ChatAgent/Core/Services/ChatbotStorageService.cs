@@ -135,9 +135,12 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 _logger.LogError(ex, "An error occurred while deleting the chatbot with ID {ChatbotId}.", chatbotId);
                 throw;
             }
-        } 
+        }
 
         #endregion
+
+
+        #region ChatSession Methods
 
         /// <summary>
         /// Creates a new chat session and saves it to the database.
@@ -173,6 +176,13 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             }
         }
 
+        /// <summary>
+        /// Updates an existing chat session and saves the changes to the database.
+        /// </summary>
+        /// <param name="chatSession">The chat session entity to update.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The updated chat session entity.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the chat session is null.</exception>
         public async Task<ChatSession> UpdateChatSessionAsync(ChatSession chatSession, CancellationToken cancellationToken = default)
         {
             if (chatSession == null)
@@ -198,6 +208,32 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         }
 
         /// <summary>
+        /// Deletes a chat session by its unique identifier.
+        /// </summary>
+        /// <param name="chatSessionId">The unique identifier of the chat session.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        public async Task DeleteChatSessionAsync(ulong chatSessionId, CancellationToken cancellationToken = default)
+        {
+            var chatSession = await GetChatSessionAsync(chatSessionId, cancellationToken);
+            if (chatSession == null)
+            {
+                _logger.LogWarning("Chat session with ID {ChatSessionId} not found.", chatSessionId);
+                return;
+            }
+            try
+            {
+                _dbContext.ChatSessions.Remove(chatSession);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Chat session with ID {ChatSessionId} deleted successfully.", chatSessionId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the chat session with ID {ChatSessionId}.", chatSessionId);
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Retrieves a chat session by its unique identifier.
         /// </summary>
         /// <param name="chatSessionId">The unique identifier of the chat session.</param>
@@ -212,5 +248,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 .ThenInclude(m => m.Media)
                 .SingleOrDefaultAsync(x => x.Id == chatSessionId, cancellationToken);
         }
+
+
+        #endregion
+
     }
 }
