@@ -45,12 +45,6 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         public string UserMessage { get; set; }
 
         /// <summary>
-        /// The URL of the media attachment in the user's message.
-        /// </summary>
-        [Column("UserMessageMediaUrl")]
-        public string? UserMessageMediaUrl { get; set; }
-
-        /// <summary>
         /// The AI agent's response in the chat.
         /// </summary>
         [Required(ErrorMessage = "AgentResponse is required.")]
@@ -66,9 +60,14 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// <summary>
         /// The name of the AI model used for the response.
         /// </summary>
-        [Required(ErrorMessage = "GenAIModel is required.")]
-        [Column("GenAIModel")]
-        public string GenAIModel { get; set; }
+        [Column("Model")]
+        public string? Model { get; set; }
+
+        /// <summary>
+        /// The name of the AI provider used for the response.
+        /// </summary>
+        [Column("ProviderName")]
+        public string? ProviderName { get; set; }
 
         /// <summary>
         /// The number of tokens in the user's message.
@@ -115,6 +114,11 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// </summary>
         [Column("Version")]
         public uint Version { get; set; }
+
+        /// <summary>
+        /// The media attachments associated with the chat message.
+        /// </summary>
+        public ICollection<ChatMessageMedia> Media { get; set; }
 
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Luval.Marin2.ChatAgent.Core.Entities;
+using Luval.Marin2.ChatAgent.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Data
     /// <summary>
     /// The database context for managing Chat, ChatMessage, and ChatAgent entities.
     /// </summary>
-    public class ChatDbContext : DbContext
+    public class ChatDbContext : DbContext, IChatDbContext
     {
         /// <summary>
         /// The DbSet representing the Chat table.
@@ -55,6 +56,13 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Data
                 .HasOne(cm => cm.Chat)
                 .WithMany(c => c.ChatMessages)
                 .HasForeignKey(cm => cm.ChatId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure ChatMessageMedia relationship with ChatMessage
+            modelBuilder.Entity<ChatMessageMedia>()
+                .HasOne(cmm => cmm.ChatMessage)
+                .WithMany(cm => cm.Media)
+                .HasForeignKey(cmm => cmm.ChatMessageId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Add additional configurations as needed
