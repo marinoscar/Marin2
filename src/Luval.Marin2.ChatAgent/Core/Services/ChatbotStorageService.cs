@@ -1,4 +1,5 @@
-﻿using Luval.AuthMate.Core.Interfaces;
+﻿using Luval.AuthMate.Core;
+using Luval.AuthMate.Core.Interfaces;
 using Luval.Marin2.ChatAgent.Core.Entities;
 using Luval.Marin2.ChatAgent.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -168,6 +169,30 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while creating the chat session.");
+                throw;
+            }
+        }
+
+        public async Task<ChatSession> UpdateChatSessionAsync(ChatSession chatSession, CancellationToken cancellationToken = default)
+        {
+            if (chatSession == null)
+            {
+                _logger.LogError("ChatSession cannot be null.");
+                throw new ArgumentNullException(nameof(chatSession));
+            }
+            try
+            {
+                chatSession.UpdatedBy = _userResolver.GetUserEmail();
+                chatSession.UtcUpdatedOn = DateTime.UtcNow.ForceUtc();
+                chatSession.Version++;
+                _dbContext.ChatSessions.Update(chatSession);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Chat session updated successfully with ID {0}.", chatSession.Id);
+                return chatSession;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the chat session.");
                 throw;
             }
         }

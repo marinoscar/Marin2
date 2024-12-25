@@ -118,7 +118,7 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// <summary>
         /// The media attachments associated with the chat message.
         /// </summary>
-        public ICollection<ChatMessageMedia> Media { get; set; }
+        public List<ChatMessageMedia> Media { get; set; } = new List<ChatMessageMedia>();
 
 
         /// <summary>
