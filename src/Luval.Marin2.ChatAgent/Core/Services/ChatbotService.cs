@@ -26,11 +26,11 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         /// <summary>
         /// Occurs when a chat message is completed.
         /// </summary>
-        public EventHandler<ChatMessageCompletedEventArgs>? ChatMessageCompleted;
+        public event EventHandler<ChatMessageCompletedEventArgs>? ChatMessageCompleted;
         /// <summary>
         /// Occurs when a chat message is streamed.
         /// </summary>
-        public EventHandler<ChatMessageStreamEventArgs>? ChatMessageStream;
+        public event EventHandler<ChatMessageStreamEventArgs>? ChatMessageStream;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatbotService"/> class.
@@ -187,8 +187,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 await foreach (var content in _chatService.GetStreamingChatMessageContentsAsync(prepHistory.History, settings, null, cancellationToken))
                 {
                     sb.Append(content.Content);
-                    if (content.Metadata != null && content.Metadata.ContainsKey("FinishReason"))
+                    if (content.Metadata != null && content.Metadata.ContainsKey("FinishReason") && !string.IsNullOrEmpty(Convert.ToString(content.Metadata["FinishReason"])))
                         finishReason = Convert.ToString(content.Metadata["FinishReason"]);
+
                     lastContent = content;
                     OnMessageStream(content);
                 }
@@ -373,8 +374,8 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             var usage = JsonObject.Parse(content.Metadata["Usage"].ToString());
             if (usage != null)
             {
-                res.InputTokenCount = usage["InputTokenCount"] != null ? Convert.ToInt32(usage["InputTokenCount"])  : 0;
-                res.OutputTokenCount = usage["OutputTokenCount"] != null ? Convert.ToInt32(usage["OutputTokenCount"]) : 0;
+                res.InputTokenCount = usage["InputTokenCount"]?.GetValue<int>() ?? 0;
+                res.OutputTokenCount = usage["OutputTokenCount"]?.GetValue<int>() ?? 0;
             }
             return res;
         }

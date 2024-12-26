@@ -69,6 +69,74 @@ namespace Luval.Marin2.ChatAgent.Tests
             Assert.True(result.OutputTokens > 0);
         }
 
+        [Fact]
+        public async Task SubmitMessageToNewSession_ShouldCreateChatSessionAndReturnChatMessageAndCompletedEventIsCalled()
+        {
+            // Arrange
+            ulong chatbotId = 1;
+            var service = CreateService((c) => {
+                var cb = new Chatbot()
+                {
+                    AccountId = 1,
+                    Name = "Test Chatbot"
+                };
+                c!.Chatbots.Add(cb);
+                c!.SaveChanges();
+                chatbotId = cb.Id;
+            }, null);
+
+            var eventRaised = false;
+
+            service.ChatMessageCompleted += (s, e) =>
+            {
+                Assert.NotNull(e);
+                Assert.NotNull(e.Content);
+                Assert.Equal("Stop", e.FinishReason);
+                Assert.True(e.InputTokenCount > 0);
+                Assert.True(e.OutputTokenCount > 0);
+                eventRaised = true;
+            };
+
+            // Act
+            var result = await service.SubmitMessageToNewSession(chatbotId, "Hello, world!", "Title", null);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(eventRaised);
+        }
+
+        [Fact]
+        public async Task SubmitMessageToNewSession_ShouldCreateChatSessionAndReturnChatMessageAndStreamEventIsCalled()
+        {
+            // Arrange
+            ulong chatbotId = 1;
+            var service = CreateService((c) => {
+                var cb = new Chatbot()
+                {
+                    AccountId = 1,
+                    Name = "Test Chatbot"
+                };
+                c!.Chatbots.Add(cb);
+                c!.SaveChanges();
+                chatbotId = cb.Id;
+            }, null);
+
+            var eventRaised = false;
+
+            service.ChatMessageStream += (s, e) =>
+            {
+                Assert.NotNull(e);
+                eventRaised = true;
+            };
+
+            // Act
+            var result = await service.SubmitMessageToNewSession(chatbotId, "Hello, world!", "Title", null);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(eventRaised);
+        }
+
         private string GetStreamingString()
         {
             return @"
