@@ -30,13 +30,23 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         /// </summary>
         public EventHandler<ChatMessageStreamEventArgs>? ChatMessageStream;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChatbotService"/> class.
+        /// </summary>
+        /// <param name="chatCompletionService">The chat completion service used to process chat messages.</param>
+        /// <param name="chatbotStorageService">The chatbot storage service used to manage chat sessions and messages.</param>
+        /// <param name="mediaService">The media service used to handle media file operations.</param>
+        /// <param name="logger">The logger instance used for logging information and errors.</param>
+        /// <exception cref="ArgumentNullException">Thrown when any of the required dependencies are null.</exception>
         public ChatbotService(IChatCompletionService chatCompletionService, IChatbotStorageService chatbotStorageService, IMediaService mediaService, ILogger<ChatbotService> logger)
         {
-            _chatService = chatCompletionService;
-            _logger = logger; ;
-            _mediaService = mediaService;
-            _chatbotStorageService = chatbotStorageService;
+            _chatService = chatCompletionService ?? throw new ArgumentNullException(nameof(chatCompletionService), "Chat completion service cannot be null.");
+            _chatbotStorageService = chatbotStorageService ?? throw new ArgumentNullException(nameof(chatbotStorageService), "Chatbot storage service cannot be null.");
+            _mediaService = mediaService ?? throw new ArgumentNullException(nameof(mediaService), "Media service cannot be null.");
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null.");
         }
+
+
 
         /// <summary>
         /// Submits a user message to a new chat session, processes the message using the chat service, and persists the resulting chat message.
