@@ -17,6 +17,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
     {
 
         private readonly IChatCompletionService _chatService;
+        private readonly IChatbotStorageService _chatbotStorageService;
         private readonly ILogger<ChatbotService> _logger;
         private readonly IMediaService _mediaService;
 
@@ -29,20 +30,44 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         /// </summary>
         public EventHandler<ChatMessageStreamEventArgs>? ChatMessageStream;
 
-        public ChatbotService(IChatCompletionService chatCompletionService, IMediaService mediaService, ILogger<ChatbotService> logger)
+        public ChatbotService(IChatCompletionService chatCompletionService, IChatbotStorageService chatbotStorageService, IMediaService mediaService, ILogger<ChatbotService> logger)
         {
             _chatService = chatCompletionService;
             _logger = logger; ;
             _mediaService = mediaService;
+            _chatbotStorageService = chatbotStorageService;
         }
 
-        public async Task<ChatMessage> RunUserMessageAsync(string message, ChatSession chatSession, IEnumerable<UploadFile>? files = default, double temperature = 0, CancellationToken cancellationToken = default)
+        public async Task<ChatMessage> SubmitMessageToNewSession(ulong chatbotId, string message, string sessionTitle = "New Session", IEnumerable<UploadFile>? files = default, double temperature = 0, CancellationToken cancellationToken = default)
+        {
+            var chatSession = new ChatSession()
+            {
+                Title = sessionTitle,
+                ChatbotId = chatbotId
+            };
+            await _chatbotStorageService.CreateChatSessionAsync(chatSession, cancellationToken);
+            return await AppendMessageToSession(message, chatSession, files, temperature, cancellationToken);
+        }
+
+        public async Task<ChatMessage> AppendMessageToSession(string message, ulong chatSessionId, IEnumerable<UploadFile>? files = default, double temperature = 0, CancellationToken cancellationToken = default)
+        {
+            var chatSession = await _chatbotStorageService.GetChatSessionAsync(chatSessionId, cancellationToken);
+            if (chatSession == null)
+            {
+                _logger.LogError($"Chat session {chatSessionId} not found");
+                throw new ArgumentNullException(nameof(chatSession));
+            }
+            return await AppendMessageToSession(message, chatSession, files, temperature, cancellationToken);
+        }
+
+        public async Task<ChatMessage> AppendMessageToSession(string message, ChatSession chatSession, IEnumerable<UploadFile>? files = default, double temperature = 0, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentException("Message cannot be null or empty", nameof(message));
             if (chatSession == null)
                 throw new ArgumentNullException(nameof(chatSession));
 
+            //Apply tge temperature to the settings
             var settings = new OpenAIPromptExecutionSettings()
             {
                 Temperature = temperature
@@ -52,6 +77,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             {
                 var prepHistory = await PrepareHistoryAsync(chatSession, message, files, cancellationToken);
                 var finishReason = string.Empty;
+
                 StreamingChatMessageContent? lastContent = null;
                 var sb = new StringBuilder();
 
@@ -66,7 +92,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
 
                 OnMessageCompleted(lastContent, sb.ToString(), finishReason);
                 prepHistory.History.AddAssistantMessage(sb.ToString());
-                return new ChatMessage();
+                var result = await PersistMessage(message, chatSession, prepHistory, lastContent, sb, cancellationToken);
+
+                return result;
             }
 
             catch (Exception ex)
@@ -74,6 +102,41 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 _logger.LogError(ex, "An error occurred while running user message.");
                 throw;
             }
+        }
+
+        private async Task<ChatMessage> PersistMessage(string message, ChatSession chatSession, ChatHistoryPrep prepHistory, StreamingChatMessageContent? content, StringBuilder sb, CancellationToken cancellationToken = default)
+        {
+            //updates the chat session with the new message
+            var chatInfo = ChatMessageCompletedEventArgs.Create(content, string.Empty, string.Empty);
+            List<ChatMessageMedia>? mediaFiles = null;
+            var chatMessage = new ChatMessage()
+            {
+                ChatSessionId = chatSession.Id,
+                UserMessage = message,
+                AgentResponse = sb.ToString(),
+                Model = content?.ModelId,
+                ProviderName = "OpenAI",
+                InputTokens = chatInfo.InputTokenCount,
+                OutputTokens = chatInfo.OutputTokenCount
+            };
+
+            if (prepHistory.Files != null && prepHistory.Files.Any())
+            {
+                mediaFiles = prepHistory.Files.Select(i => new ChatMessageMedia()
+                {
+                    ChatMessageId = chatMessage.Id,
+                    ChatMessage = chatMessage,
+                    ContentMD5 = i.ContentMD5,
+                    ContentType = i.ContentType,
+                    FileName = i.FileName,
+                    MediaUrl = i.PublicUri.ToString(),
+                    ProviderFileName = i.ProviderFileName,
+                    ProviderName = i.ProviderName,
+                }).ToList();
+            }
+
+            var result = await _chatbotStorageService.AddChatMessageAsync(chatSession.Id, chatMessage, mediaFiles, cancellationToken);
+            return result;
         }
 
         private async Task<ChatHistoryPrep> PrepareHistoryAsync(ChatSession chatSession, string message, IEnumerable<UploadFile>? files = default, CancellationToken cancellationToken = default)

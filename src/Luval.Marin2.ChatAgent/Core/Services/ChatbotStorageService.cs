@@ -11,7 +11,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
     /// <summary>
     /// Service for managing chatbot storage operations.
     /// </summary>
-    public class ChatbotStorageService
+    public class ChatbotStorageService : IChatbotStorageService
     {
         private readonly ChatDbContext _dbContext;
         private readonly ILogger<ChatbotStorageService> _logger;
