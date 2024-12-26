@@ -215,7 +215,6 @@ namespace Luval.Marin2.ChatAgent.Tests
 
         #endregion
 
-
         #region ChatSession Test Cases
 
         [Fact]
@@ -394,6 +393,8 @@ namespace Luval.Marin2.ChatAgent.Tests
         }
 
         #endregion
+
+        #region ChatMessage Test Cases
 
         [Fact]
         public async Task AddChatMessageAsync_ShouldAddChatMessage()
@@ -623,7 +624,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             await Assert.ThrowsAsync<ArgumentException>(() => service.AddMessageMediaAsync(0, media));
         }
 
-
+        #endregion
 
     }
 
