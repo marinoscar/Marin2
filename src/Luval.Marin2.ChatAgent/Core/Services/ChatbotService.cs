@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace Luval.Marin2.ChatAgent.Core.Services
@@ -89,6 +91,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                     Title = sessionTitle,
                     ChatbotId = chatbotId
                 };
+                
 
                 await _chatbotStorageService.CreateChatSessionAsync(chatSession, cancellationToken);
                 _logger.LogInformation("Chat session created successfully with ID {ChatSessionId}.", chatSession.Id);
@@ -367,11 +370,11 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             };
 
             if (content.Metadata == null) return res;
-            var usage = content.Metadata["Usage"] as OpenAI.Chat.ChatTokenUsage;
+            var usage = JsonObject.Parse(content.Metadata["Usage"].ToString());
             if (usage != null)
             {
-                res.InputTokenCount = usage.InputTokenCount;
-                res.OutputTokenCount = usage.OutputTokenCount;
+                res.InputTokenCount = usage["InputTokenCount"] != null ? Convert.ToInt32(usage["InputTokenCount"])  : 0;
+                res.OutputTokenCount = usage["OutputTokenCount"] != null ? Convert.ToInt32(usage["OutputTokenCount"]) : 0;
             }
             return res;
         }

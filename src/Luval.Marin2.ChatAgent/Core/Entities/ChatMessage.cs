@@ -35,7 +35,7 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// Navigation property for the associated chat session.
         /// </summary>
         [ForeignKey(nameof(ChatSessionId))]
-        public virtual ChatSession Chat { get; set; }
+        public virtual ChatSession ChatSession { get; set; }
 
         /// <summary>
         /// The user's message in the chat.
