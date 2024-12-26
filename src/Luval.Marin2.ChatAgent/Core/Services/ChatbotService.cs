@@ -38,17 +38,83 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             _chatbotStorageService = chatbotStorageService;
         }
 
+        /// <summary>
+        /// Submits a user message to a new chat session, processes the message using the chat service, and persists the resulting chat message.
+        /// </summary>
+        /// <param name="chatbotId">The unique identifier of the chatbot.</param>
+        /// <param name="message">The user message to submit to the new chat session.</param>
+        /// <param name="sessionTitle">The title of the new chat session. Defaults to "New Session".</param>
+        /// <param name="files">Optional collection of files to be uploaded and associated with the message.</param>
+        /// <param name="temperature">The temperature setting for the OpenAI prompt execution, which controls the randomness of the response.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The created chat message entity.</returns>
+        /// <exception cref="ArgumentException">Thrown when the message is null or empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when the chatbotId is invalid.</exception>
+        /// <remarks>
+        /// This method performs the following steps:
+        /// 1. Validates the input parameters. If the message is null or empty, it throws an ArgumentException.
+        ///    If the chatbotId is invalid, it throws an ArgumentNullException.
+        /// 2. Creates a new chat session with the provided title and chatbotId.
+        /// 3. Calls the AppendMessageToSession method to process the user message, stream the response content, invoke events, and persist the user message and the assistant's response to the database.
+        /// 4. Returns the created chat message entity.
+        /// </remarks>
         public async Task<ChatMessage> SubmitMessageToNewSession(ulong chatbotId, string message, string sessionTitle = "New Session", IEnumerable<UploadFile>? files = default, double temperature = 0, CancellationToken cancellationToken = default)
         {
-            var chatSession = new ChatSession()
+            if (chatbotId <= 0)
             {
-                Title = sessionTitle,
-                ChatbotId = chatbotId
-            };
-            await _chatbotStorageService.CreateChatSessionAsync(chatSession, cancellationToken);
-            return await AppendMessageToSession(message, chatSession, files, temperature, cancellationToken);
+                _logger.LogError("Invalid chatbot ID.");
+                throw new ArgumentNullException(nameof(chatbotId), "Chatbot ID must be greater than zero.");
+            }
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                _logger.LogError("Message cannot be null or empty.");
+                throw new ArgumentException("Message cannot be null or empty", nameof(message));
+            }
+
+            try
+            {
+                var chatSession = new ChatSession()
+                {
+                    Title = sessionTitle,
+                    ChatbotId = chatbotId
+                };
+
+                await _chatbotStorageService.CreateChatSessionAsync(chatSession, cancellationToken);
+                _logger.LogInformation("Chat session created successfully with ID {ChatSessionId}.", chatSession.Id);
+
+                var result = await AppendMessageToSession(message, chatSession, files, temperature, cancellationToken);
+                _logger.LogInformation("Message submitted to new session successfully.");
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while submitting the message to a new session.");
+                throw;
+            }
         }
 
+
+
+        /// <summary>
+        /// Appends a user message to an existing chat session by its ID, processes the message using the chat service, and persists the resulting chat message.
+        /// </summary>
+        /// <param name="message">The user message to append to the chat session.</param>
+        /// <param name="chatSessionId">The unique identifier of the chat session to which the message will be appended.</param>
+        /// <param name="files">Optional collection of files to be uploaded and associated with the message.</param>
+        /// <param name="temperature">The temperature setting for the OpenAI prompt execution, which controls the randomness of the response.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The created chat message entity.</returns>
+        /// <exception cref="ArgumentException">Thrown when the message is null or empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when the chat session is not found.</exception>
+        /// <remarks>
+        /// This method performs the following steps:
+        /// 1. Retrieves the chat session by its unique identifier. If the chat session is not found, it logs an error and throws an ArgumentNullException.
+        /// 2. Calls the overloaded AppendMessageToSession method with the retrieved chat session.
+        /// 3. The overloaded method validates the input parameters, applies the temperature setting, prepares the chat history, processes the user message, streams the response content, invokes events, and persists the user message and the assistant's response to the database.
+        /// 4. Returns the created chat message entity.
+        /// </remarks>
         public async Task<ChatMessage> AppendMessageToSession(string message, ulong chatSessionId, IEnumerable<UploadFile>? files = default, double temperature = 0, CancellationToken cancellationToken = default)
         {
             var chatSession = await _chatbotStorageService.GetChatSessionAsync(chatSessionId, cancellationToken);
@@ -60,6 +126,30 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             return await AppendMessageToSession(message, chatSession, files, temperature, cancellationToken);
         }
 
+        /// <summary>
+        /// Appends a user message to an existing chat session, processes the message using the chat service, and persists the resulting chat message.
+        /// </summary>
+        /// <param name="message">The user message to append to the chat session.</param>
+        /// <param name="chatSession">The chat session to which the message will be appended.</param>
+        /// <param name="files">Optional collection of files to be uploaded and associated with the message.</param>
+        /// <param name="temperature">The temperature setting for the OpenAI prompt execution, which controls the randomness of the response.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The created chat message entity.</returns>
+        /// <exception cref="ArgumentException">Thrown when the message is null or empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when the chat session is null.</exception>
+        /// <remarks>
+        /// This method performs the following steps:
+        /// 1. Validates the input parameters. If the message is null or empty, it throws an ArgumentException.
+        ///    If the chat session is null, it throws an ArgumentNullException.
+        /// 2. Applies the temperature setting to the OpenAI prompt execution settings.
+        /// 3. Prepares the chat history by loading previous messages and uploading any provided files.
+        /// 4. Processes the user message using the chat service, streaming the response content and appending it to a StringBuilder.
+        /// 5. Invokes the ChatMessageStream event for each streamed content.
+        /// 6. Invokes the ChatMessageCompleted event when the message processing is completed.
+        /// 7. Adds the assistant's response to the chat history.
+        /// 8. Persists the user message and the assistant's response to the database, including any associated media files.
+        /// 9. Returns the created chat message entity.
+        /// </remarks>
         public async Task<ChatMessage> AppendMessageToSession(string message, ChatSession chatSession, IEnumerable<UploadFile>? files = default, double temperature = 0, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(message))
@@ -103,6 +193,30 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 throw;
             }
         }
+
+        /// <summary>
+        /// Invokes the ChatMessageStream event when a chat message is streamed.
+        /// </summary>
+        /// <param name="streamingChat">The streaming chat message content.</param>
+        protected virtual void OnMessageStream(StreamingChatMessageContent? streamingChat)
+        {
+            if (streamingChat == null) return;
+            ChatMessageStream?.Invoke(this, new ChatMessageStreamEventArgs(streamingChat.Content));
+        }
+
+        /// <summary>
+        /// Invokes the ChatMessageCompleted event when a chat message is completed.
+        /// </summary>
+        /// <param name="streamingChat">The streaming chat message content.</param>
+        /// <param name="content">The complete content of the chat message.</param>
+        /// <param name="finishReason">The reason the chat message stream was finished.</param>
+        protected virtual void OnMessageCompleted(StreamingChatMessageContent? streamingChat, string? content, string? finishReason)
+        {
+            if (streamingChat == null) return;
+            ChatMessageCompleted?.Invoke(this, ChatMessageCompletedEventArgs.Create(streamingChat, content, finishReason));
+        }
+
+        #region Supporting Methods
 
         private async Task<ChatMessage> PersistMessage(string message, ChatSession chatSession, ChatHistoryPrep prepHistory, StreamingChatMessageContent? content, StringBuilder sb, CancellationToken cancellationToken = default)
         {
@@ -182,27 +296,6 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             };
         }
 
-        /// <summary>
-        /// Invokes the ChatMessageStream event when a chat message is streamed.
-        /// </summary>
-        /// <param name="streamingChat">The streaming chat message content.</param>
-        protected virtual void OnMessageStream(StreamingChatMessageContent? streamingChat)
-        {
-            if (streamingChat == null) return;
-            ChatMessageStream?.Invoke(this, new ChatMessageStreamEventArgs(streamingChat.Content));
-        }
-
-        /// <summary>
-        /// Invokes the ChatMessageCompleted event when a chat message is completed.
-        /// </summary>
-        /// <param name="streamingChat">The streaming chat message content.</param>
-        /// <param name="content">The complete content of the chat message.</param>
-        /// <param name="finishReason">The reason the chat message stream was finished.</param>
-        protected virtual void OnMessageCompleted(StreamingChatMessageContent? streamingChat, string? content, string? finishReason)
-        {
-            if (streamingChat == null) return;
-            ChatMessageCompleted?.Invoke(this, ChatMessageCompletedEventArgs.Create(streamingChat, content, finishReason));
-        }
 
         private string GetDefaultSystemPrompt()
         {
@@ -214,7 +307,10 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         {
             public ChatHistory History { get; set; } = default!;
             public List<MediaFileInfo> Files { get; set; } = new List<MediaFileInfo>();
-        }
+        } 
+
+        #endregion
+
     }
 
     public class ChatMessageCompletedEventArgs : EventArgs
