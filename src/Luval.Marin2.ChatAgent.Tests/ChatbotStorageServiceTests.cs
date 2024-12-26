@@ -25,6 +25,8 @@ namespace Luval.Marin2.ChatAgent.Tests
             return service;
         }
 
+        #region Chatbot Test Cases
+
         [Fact]
         public async Task CreateChatbotAsync_ShouldCreateChatbot()
         {
@@ -41,7 +43,7 @@ namespace Luval.Marin2.ChatAgent.Tests
                 c.Chatbots.Add(chatbot);
                 c.SaveChanges();
             };
-            
+
             // Act
             var result = await service.CreateChatbotAsync(chatbot);
 
@@ -173,15 +175,112 @@ namespace Luval.Marin2.ChatAgent.Tests
             };
 
             // Act & Assert
-            await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => service.UpdateChatbotAsync(nonExistentChatbot));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.UpdateChatbotAsync(nonExistentChatbot));
+        }
+        [Fact]
+        public async Task DeleteChatbotAsync_ShouldDeleteChatbot()
+        {
+            // Arrange
+            var chatbotId = 0ul;
+            var service = CreateService(context =>
+            {
+                var chatbot = new Chatbot
+                {
+                    Name = "Chatbot to Delete",
+                    AccountId = 1
+                };
+                context.Chatbots.Add(chatbot);
+                context.SaveChanges();
+                chatbotId = chatbot.Id;
+            });
+
+            // Act
+            await service.DeleteChatbotAsync(chatbotId);
+
+            // Assert
+            var deletedChatbot = await service.GetChatbotAsync(chatbotId);
+            Assert.Null(deletedChatbot);
         }
 
+        [Fact]
+        public async Task DeleteChatbotAsync_ShouldThrowInvalidOperationException_WhenChatbotDoesNotExist()
+        {
+            // Arrange
+            var service = CreateService(null);
+            var nonExistentChatbotId = 999ul;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.DeleteChatbotAsync(nonExistentChatbotId));
+        }
+
+        #endregion
 
 
+        [Fact]
+        public async Task CreateChatSessionAsync_ShouldCreateChatSession()
+        {
+            // Arrange
+            var chatbotId = 0ul;
+            var service = CreateService(context =>
+            {
+                var chatbot = new Chatbot
+                {
+                    Name = "Test Chatbot",
+                    AccountId = 1
+                };
+                context.Chatbots.Add(chatbot);
+                context.SaveChanges();
+                chatbotId = chatbot.Id;
+            });
 
+            var chatSession = new ChatSession
+            {
+                ChatbotId = chatbotId,
+                Title = "Test Chat Session"
+            };
 
+            // Act
+            var result = await service.CreateChatSessionAsync(chatSession);
 
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Test Chat Session", result.Title);
+            Assert.Equal(chatbotId, result.ChatbotId);
+            Assert.NotNull(result.CreatedBy);
+            Assert.NotNull(result.UpdatedBy);
+            Assert.Equal(1u, result.Version);
+            Assert.True(result.Id > 0);
+            Assert.True(result.UtcCreatedOn > DateTime.UtcNow.AddHours(-1));
+        }
 
+        [Fact]
+        public async Task CreateChatSessionAsync_ShouldThrowArgumentNullException_WhenChatSessionIsNull()
+        {
+            // Arrange
+            var service = CreateService(null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() => service.CreateChatSessionAsync(null));
+        }
+
+        [Fact]
+        public async Task CreateChatSessionAsync_ShouldThrowArgumentException_WhenChatbotIdIsInvalid()
+        {
+            // Arrange
+            var service = CreateService(null);
+            var chatSession = new ChatSession
+            {
+                ChatbotId = 999,
+                Title = "Test Chat Session"
+            };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateChatSessionAsync(chatSession));
+        }
+
+        
 
     }
+
 }
+

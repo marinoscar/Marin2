@@ -62,8 +62,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the chatbot.");
-                throw;
+                var errorMsg = "An error occurred while creating the chatbot.";
+                _logger.LogError(ex, errorMsg);
+                throw new InvalidOperationException(errorMsg, ex);
             }
         }
 
@@ -111,8 +112,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the chatbot.");
-                throw;
+                var errorMsg = "An error occurred while updating the chatbot.";
+                _logger.LogError(ex, errorMsg);
+                throw new InvalidOperationException(errorMsg, ex);
             }
         }
 
@@ -126,8 +128,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             var chatbot = await GetChatbotAsync(chatbotId, cancellationToken);
             if (chatbot == null)
             {
-                _logger.LogWarning("Chatbot with ID {ChatbotId} not found.", chatbotId);
-                return;
+                var errorMsg = string.Format("Chatbot with ID {0} not found.", chatbotId);
+                _logger.LogError(errorMsg);
+                throw new InvalidOperationException(errorMsg);
             }
             try
             {
@@ -137,8 +140,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the chatbot with ID {ChatbotId}.", chatbotId);
-                throw;
+                var errorMsg = string.Format("An error occurred while deleting the chatbot with ID {0}.", chatbotId);
+                _logger.LogError(ex, errorMsg);
+                throw new InvalidOperationException(errorMsg, ex);
             }
         }
 
@@ -168,6 +172,12 @@ namespace Luval.Marin2.ChatAgent.Core.Services
 
             try
             {
+                chatSession.CreatedBy = _userResolver.GetUserEmail();
+                chatSession.UtcCreatedOn = DateTime.UtcNow.ForceUtc();
+                chatSession.UpdatedBy = _userResolver.GetUserEmail();
+                chatSession.UtcUpdatedOn = DateTime.UtcNow.ForceUtc();  
+                chatSession.Version = 1;
+
                 await _dbContext.ChatSessions.AddAsync(chatSession, cancellationToken);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation("Chat session created successfully with ID {0}.", chatSession.Id);
@@ -175,8 +185,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the chat session.");
-                throw;
+                var errorMsg = "An error occurred while creating the chat session.";
+                _logger.LogError(ex, errorMsg);
+                throw new InvalidOperationException(errorMsg, ex);
             }
         }
 
