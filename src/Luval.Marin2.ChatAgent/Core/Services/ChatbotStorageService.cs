@@ -337,6 +337,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                         m.Version = 1;
                         await AddMessageMediaAsync(chatMessage.Id, m, cancellationToken);
                     }
+                    chatMessage.Chat.HasMedia = true; // updates the fact that the session has media
                     await _dbContext.SaveChangesAsync(cancellationToken);
                 }
                 return chatMessage;

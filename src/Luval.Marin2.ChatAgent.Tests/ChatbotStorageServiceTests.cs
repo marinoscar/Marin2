@@ -529,6 +529,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             Assert.Equal("Test User Message", result.UserMessage);
             Assert.Equal("Test Agent Response", result.AgentResponse);
             Assert.Equal(chatSessionId, result.ChatSessionId);
+            Assert.True(result.Chat.HasMedia); // Chat session should have media
             Assert.NotNull(result.CreatedBy);
             Assert.NotNull(result.UpdatedBy);
             Assert.Equal(1u, result.Version);
