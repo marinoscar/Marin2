@@ -1,6 +1,7 @@
 ﻿using Luval.AuthMate.Core;
 using Luval.AuthMate.Core.Interfaces;
 using Luval.Marin2.ChatAgent.Core.Entities;
+using Luval.Marin2.ChatAgent.Infrastructure.Data;
 using Luval.Marin2.ChatAgent.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
     /// </summary>
     public class ChatbotStorageService
     {
-        private readonly IChatDbContext _dbContext;
+        private readonly ChatDbContext _dbContext;
         private readonly ILogger<ChatbotStorageService> _logger;
         private readonly IUserResolver _userResolver;
 
@@ -22,7 +23,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         /// <param name="dbContext">The database context.</param>
         /// <param name="logger">The logger instance.</param>
         /// <param name="userResolver">The user resolver instance.</param>
-        public ChatbotStorageService(IChatDbContext dbContext, ILogger<ChatbotStorageService> logger, IUserResolver userResolver)
+        public ChatbotStorageService(ChatDbContext dbContext, ILogger<ChatbotStorageService> logger, IUserResolver userResolver)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -96,10 +97,14 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             }
             try
             {
+                var isTracked = _dbContext.ChangeTracker.Entries<Chatbot>().Any(e => e.Entity.Id == chatbot.Id);
                 chatbot.UpdatedBy = _userResolver.GetUserEmail();
                 chatbot.UtcUpdatedOn = DateTime.UtcNow;
                 chatbot.Version++;
-                _dbContext.Chatbots.Update(chatbot);
+
+                if(!isTracked)
+                    _dbContext.Chatbots.Update(chatbot);
+
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation("Chatbot updated successfully with ID {ChatbotId}.", chatbot.Id);
                 return chatbot;
@@ -250,7 +255,6 @@ namespace Luval.Marin2.ChatAgent.Core.Services
 
         #endregion
 
-
         #region ChatMessage Methods
 
         /// <summary>
@@ -349,7 +353,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 media.CreatedBy = _userResolver.GetUserEmail();
                 media.Version = 1;
                 media.ChatMessageId = chatMessageId;
-                await _dbContext.ChatMessageMedias.AddAsync(media, cancellationToken);
+                await _dbContext.ChatMessageMedia.AddAsync(media, cancellationToken);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation("Chat message media created successfully with ID {0}.", media.Id);
                 return media;
