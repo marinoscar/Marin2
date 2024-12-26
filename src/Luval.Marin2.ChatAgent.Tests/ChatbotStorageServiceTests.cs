@@ -216,6 +216,8 @@ namespace Luval.Marin2.ChatAgent.Tests
         #endregion
 
 
+        #region ChatSession Test Cases
+
         [Fact]
         public async Task CreateChatSessionAsync_ShouldCreateChatSession()
         {
@@ -278,7 +280,350 @@ namespace Luval.Marin2.ChatAgent.Tests
             await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateChatSessionAsync(chatSession));
         }
 
-        
+        [Fact]
+        public async Task UpdateChatSessionAsync_ShouldUpdateChatSession()
+        {
+            // Arrange
+            var chatSessionId = 0ul;
+            var service = CreateService(context =>
+            {
+                var chatbot = new Chatbot
+                {
+                    Name = "Test Chatbot",
+                    AccountId = 1
+                };
+                context.Chatbots.Add(chatbot);
+                context.SaveChanges();
+                var chatSession = new ChatSession
+                {
+                    ChatbotId = chatbot.Id,
+                    Title = "Old Chat Session",
+                    Version = 1
+                };
+                context.ChatSessions.Add(chatSession);
+                context.SaveChanges();
+                chatSessionId = chatSession.Id;
+            });
+
+            var updatedChatSession = new ChatSession
+            {
+                Id = chatSessionId,
+                ChatbotId = 1,
+                Title = "Updated Chat Session"
+            };
+
+            // Act
+            var result = await service.UpdateChatSessionAsync(updatedChatSession);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Updated Chat Session", result.Title);
+            Assert.Equal(1ul, result.ChatbotId);
+            Assert.NotNull(result.UpdatedBy);
+            Assert.True(result.UtcUpdatedOn > DateTime.UtcNow.AddMinutes(-10));
+        }
+
+        [Fact]
+        public async Task UpdateChatSessionAsync_ShouldThrowArgumentNullException_WhenChatSessionIsNull()
+        {
+            // Arrange
+            var service = CreateService(null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() => service.UpdateChatSessionAsync(null));
+        }
+
+        [Fact]
+        public async Task UpdateChatSessionAsync_ShouldThrowInvalidOperationException_WhenChatSessionDoesNotExist()
+        {
+            // Arrange
+            var service = CreateService(null);
+            var nonExistentChatSession = new ChatSession
+            {
+                Id = 999,
+                ChatbotId = 1,
+                Title = "Non-existent Chat Session"
+            };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.UpdateChatSessionAsync(nonExistentChatSession));
+        }
+
+        [Fact]
+        public async Task DeleteChatSessionAsync_ShouldDeleteChatSession()
+        {
+            // Arrange
+            var chatSessionId = 0ul;
+            var service = CreateService(context =>
+            {
+                var chatbot = new Chatbot
+                {
+                    Name = "Test Chatbot",
+                    AccountId = 1
+                };
+                context.Chatbots.Add(chatbot);
+                context.SaveChanges();
+                var chatSession = new ChatSession
+                {
+                    ChatbotId = chatbot.Id,
+                    Title = "Chat Session to Delete",
+                    Version = 1
+                };
+                context.ChatSessions.Add(chatSession);
+                context.SaveChanges();
+                chatSessionId = chatSession.Id;
+            });
+
+            // Act
+            await service.DeleteChatSessionAsync(chatSessionId);
+
+            // Assert
+            var deletedChatSession = await service.GetChatSessionAsync(chatSessionId);
+            Assert.Null(deletedChatSession);
+        }
+
+        [Fact]
+        public async Task DeleteChatSessionAsync_ShouldThrowInvalidOperationException_WhenChatSessionDoesNotExist()
+        {
+            // Arrange
+            var service = CreateService(null);
+            var nonExistentChatSessionId = 999ul;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.DeleteChatSessionAsync(nonExistentChatSessionId));
+        }
+
+        #endregion
+
+        [Fact]
+        public async Task AddChatMessageAsync_ShouldAddChatMessage()
+        {
+            // Arrange
+            var chatSessionId = 0ul;
+            var service = CreateService(context =>
+            {
+                var chatbot = new Chatbot
+                {
+                    Name = "Test Chatbot",
+                    AccountId = 1,
+                };
+                context.Chatbots.Add(chatbot);
+                context.SaveChanges();
+                var chatSession = new ChatSession
+                {
+                    ChatbotId = chatbot.Id,
+                    Title = "Test Chat Session",
+                    Version = 1
+                };
+                context.ChatSessions.Add(chatSession);
+                context.SaveChanges();
+                chatSessionId = chatSession.Id;
+            });
+
+            var chatMessage = new ChatMessage
+            {
+                UserMessage = "Test User Message",
+                AgentResponse = "Test Agent Response",
+                InputTokens = 10,
+                OutputTokens = 20
+            };
+
+            // Act
+            var result = await service.AddChatMessageAsync(chatSessionId, chatMessage);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Test User Message", result.UserMessage);
+            Assert.Equal("Test Agent Response", result.AgentResponse);
+            Assert.Equal(chatSessionId, result.ChatSessionId);
+            Assert.NotNull(result.CreatedBy);
+            Assert.NotNull(result.UpdatedBy);
+            Assert.Equal(1u, result.Version);
+            Assert.True(result.Id > 0);
+            Assert.True(result.UtcCreatedOn > DateTime.UtcNow.AddHours(-1));
+        }
+
+        [Fact]
+        public async Task AddChatMessageAsync_ShouldThrowArgumentNullException_WhenChatMessageIsNull()
+        {
+            // Arrange
+            var service = CreateService(null);
+            var chatSessionId = 1ul;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() => service.AddChatMessageAsync(chatSessionId, null));
+        }
+
+        [Fact]
+        public async Task AddChatMessageAsync_ShouldThrowArgumentException_WhenChatSessionIdIsInvalid()
+        {
+            // Arrange
+            var service = CreateService(null);
+            var chatMessage = new ChatMessage
+            {
+                UserMessage = "Test User Message",
+                AgentResponse = "Test Agent Response",
+                InputTokens = 10,
+                OutputTokens = 20
+            };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => service.AddChatMessageAsync(0, chatMessage));
+        }
+
+        [Fact]
+        public async Task AddChatMessageAsync_ShouldAddChatMessageWithMedia()
+        {
+            // Arrange
+            var chatSessionId = 0ul;
+            var service = CreateService(context =>
+            {
+                var chatbot = new Chatbot
+                {
+                    Name = "Test Chatbot",
+                    AccountId = 1
+                };
+                context.Chatbots.Add(chatbot);
+                context.SaveChanges();
+                var chatSession = new ChatSession
+                {
+                    ChatbotId = chatbot.Id,
+                    Title = "Test Chat Session",
+                    Version = 1
+                };
+                context.ChatSessions.Add(chatSession);
+                context.SaveChanges();
+                chatSessionId = chatSession.Id;
+            });
+
+            var chatMessage = new ChatMessage
+            {
+                UserMessage = "Test User Message",
+                AgentResponse = "Test Agent Response",
+                InputTokens = 10,
+                OutputTokens = 20
+            };
+
+            var media = new List<ChatMessageMedia>
+            {
+                new ChatMessageMedia
+                {
+                    MediaUrl = "http://test.com/media1",
+                    ProviderName = "Test Provider",
+                    Version = 1
+                },
+                new ChatMessageMedia
+                {
+                    MediaUrl = "http://test.com/media2",
+                    ProviderName = "Test Provider",
+                    Version = 1
+                }
+            };
+
+            // Act
+            var result = await service.AddChatMessageAsync(chatSessionId, chatMessage, media);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Test User Message", result.UserMessage);
+            Assert.Equal("Test Agent Response", result.AgentResponse);
+            Assert.Equal(chatSessionId, result.ChatSessionId);
+            Assert.NotNull(result.CreatedBy);
+            Assert.NotNull(result.UpdatedBy);
+            Assert.Equal(1u, result.Version);
+            Assert.True(result.Id > 0);
+            Assert.True(result.UtcCreatedOn > DateTime.UtcNow.AddHours(-1));
+            Assert.Equal(2, result.Media.Count);
+            Assert.Contains(result.Media, m => m.MediaUrl == "http://test.com/media1");
+            Assert.Contains(result.Media, m => m.MediaUrl == "http://test.com/media2");
+        }
+
+        [Fact]
+        public async Task AddMessageMediaAsync_ShouldAddMessageMedia()
+        {
+            // Arrange
+            var chatMessageId = 0ul;
+            var service = CreateService(context =>
+            {
+                var chatbot = new Chatbot
+                {
+                    Name = "Test Chatbot",
+                    AccountId = 1
+                };
+                context.Chatbots.Add(chatbot);
+                context.SaveChanges();
+                var chatSession = new ChatSession
+                {
+                    ChatbotId = chatbot.Id,
+                    Title = "Test Chat Session",
+                    Version = 1
+                };
+                context.ChatSessions.Add(chatSession);
+                context.SaveChanges();
+                var chatMessage = new ChatMessage
+                {
+                    ChatSessionId = chatSession.Id,
+                    UserMessage = "Test User Message",
+                    AgentResponse = "Test Agent Response",
+                    InputTokens = 10,
+                    OutputTokens = 20,
+                    Version = 1
+                };
+                context.ChatMessages.Add(chatMessage);
+                context.SaveChanges();
+                chatMessageId = chatMessage.Id;
+            });
+
+            var media = new ChatMessageMedia
+            {
+                MediaUrl = "http://test.com/media",
+                ProviderName = "Test Provider",
+                Version = 1
+            };
+
+            // Act
+            var result = await service.AddMessageMediaAsync(chatMessageId, media);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("http://test.com/media", result.MediaUrl);
+            Assert.Equal("Test Provider", result.ProviderName);
+            Assert.Equal(chatMessageId, result.ChatMessageId);
+            Assert.NotNull(result.CreatedBy);
+            Assert.NotNull(result.UpdatedBy);
+            Assert.Equal(1u, result.Version);
+            Assert.True(result.Id > 0);
+            Assert.True(result.UtcCreatedOn > DateTime.UtcNow.AddHours(-1));
+        }
+
+        [Fact]
+        public async Task AddMessageMediaAsync_ShouldThrowArgumentNullException_WhenMediaIsNull()
+        {
+            // Arrange
+            var service = CreateService(null);
+            var chatMessageId = 1ul;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() => service.AddMessageMediaAsync(chatMessageId, null));
+        }
+
+        [Fact]
+        public async Task AddMessageMediaAsync_ShouldThrowArgumentException_WhenChatMessageIdIsInvalid()
+        {
+            // Arrange
+            var service = CreateService(null);
+            var media = new ChatMessageMedia
+            {
+                MediaUrl = "http://test.com/media",
+                ProviderName = "Test Provider",
+                Version = 1
+            };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => service.AddMessageMediaAsync(0, media));
+        }
+
+
 
     }
 

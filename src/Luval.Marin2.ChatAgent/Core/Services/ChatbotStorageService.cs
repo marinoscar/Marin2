@@ -210,15 +210,19 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 chatSession.UpdatedBy = _userResolver.GetUserEmail();
                 chatSession.UtcUpdatedOn = DateTime.UtcNow.ForceUtc();
                 chatSession.Version++;
-                _dbContext.ChatSessions.Update(chatSession);
+                var isTracked = _dbContext.ChangeTracker.Entries<ChatSession>().Any(e => e.Entity.Id == chatSession.Id);
+                if (!isTracked)
+                    _dbContext.ChatSessions.Update(chatSession);
+
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation("Chat session updated successfully with ID {0}.", chatSession.Id);
                 return chatSession;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the chat session.");
-                throw;
+                var errorMsg = "An error occurred while updating the chat session.";
+                _logger.LogError(ex, errorMsg);
+                throw new InvalidOperationException(errorMsg, ex);
             }
         }
 
@@ -232,8 +236,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             var chatSession = await GetChatSessionAsync(chatSessionId, cancellationToken);
             if (chatSession == null)
             {
-                _logger.LogWarning("Chat session with ID {ChatSessionId} not found.", chatSessionId);
-                return;
+                var errorMsg = string.Format("Chat session with ID {0} not found.", chatSessionId);
+                _logger.LogWarning(errorMsg);
+                throw new InvalidOperationException(errorMsg);
             }
             try
             {
@@ -243,8 +248,9 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the chat session with ID {ChatSessionId}.", chatSessionId);
-                throw;
+                var errorMsg = string.Format("An error occurred while deleting the chat session with ID {0}.", chatSessionId);
+                _logger.LogError(ex, errorMsg);
+                throw new InvalidOperationException(errorMsg, ex);
             }
         }
 
@@ -320,18 +326,26 @@ namespace Luval.Marin2.ChatAgent.Core.Services
 
                 // Add child media
                 if (media != null && media.Any())
+                {
                     foreach (var m in media)
                     {
                         m.ChatMessageId = chatMessage.Id;
+                        m.UpdatedBy = _userResolver.GetUserEmail();
+                        m.UtcUpdatedOn = DateTime.UtcNow.ForceUtc();
+                        m.CreatedBy = _userResolver.GetUserEmail();
+                        m.UtcCreatedOn = DateTime.UtcNow.ForceUtc();
+                        m.Version = 1;
                         await AddMessageMediaAsync(chatMessage.Id, m, cancellationToken);
-                        chatMessage.Media.Add(m);
                     }
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                }
                 return chatMessage;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the chat message.");
-                throw;
+                var errorMsg = "An error occurred while creating the chat message.";
+                _logger.LogError(ex, errorMsg);
+                throw new InvalidOperationException(errorMsg);
             }
         }
 
