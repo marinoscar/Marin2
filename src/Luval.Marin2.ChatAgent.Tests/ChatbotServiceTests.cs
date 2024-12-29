@@ -17,7 +17,7 @@ namespace Luval.Marin2.ChatAgent.Tests
     public class ChatbotServiceTests
     {
 
-        private ChatbotService CreateService(Action<MemoryDataContext>? workOnContext, Action<CompletionServiceStub>? workOnCompletion)
+        private GenAIBotService CreateService(Action<MemoryDataContext>? workOnContext, Action<CompletionServiceStub>? workOnCompletion)
         {
             var userResolverMock = new Mock<IUserResolver>();
             userResolverMock.Setup(x => x.GetUserEmail()).Returns("user@email.com");
@@ -25,8 +25,8 @@ namespace Luval.Marin2.ChatAgent.Tests
 
             var context = new MemoryDataContext();
             var completionService = new CompletionServiceStub();
-            var storageService = new ChatbotStorageService(context, new NullLogger<ChatbotStorageService>(), userResolverMock.Object);
-            var service = new ChatbotService(completionService, storageService, mediaService, new NullLogger<ChatbotService>());
+            var storageService = new GenAIBotStorageService(context, new NullLogger<GenAIBotStorageService>(), userResolverMock.Object);
+            var service = new GenAIBotService(completionService, storageService, mediaService, new NullLogger<GenAIBotService>());
 
             context.Initialize();
             completionService.Initialize();
@@ -48,7 +48,7 @@ namespace Luval.Marin2.ChatAgent.Tests
 
             var service = CreateService((c) =>
             {
-                var cb = new Chatbot()
+                var cb = new GenAIBot()
                 {
                     AccountId = 1,
                     Name = "Test Chatbot"
@@ -66,7 +66,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             Assert.Equal(message, result.UserMessage);
             Assert.NotNull(result.AgentResponse);
             Assert.NotNull(result.ChatSession);
-            Assert.Equal(chatbotId, result.ChatSession.ChatbotId);
+            Assert.Equal(chatbotId, result.ChatSession.GenAIBotId);
             Assert.True(result.OutputTokens > 0);
         }
 
@@ -77,7 +77,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             ulong chatbotId = 1;
             var service = CreateService((c) =>
             {
-                var cb = new Chatbot()
+                var cb = new GenAIBot()
                 {
                     AccountId = 1,
                     Name = "Test Chatbot"
@@ -114,7 +114,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             ulong chatbotId = 1;
             var service = CreateService((c) =>
             {
-                var cb = new Chatbot()
+                var cb = new GenAIBot()
                 {
                     AccountId = 1,
                     Name = "Test Chatbot"
@@ -155,7 +155,7 @@ namespace Luval.Marin2.ChatAgent.Tests
 
             var service = CreateService((c) =>
             {
-                var cb = new Chatbot()
+                var cb = new GenAIBot()
                 {
                     AccountId = 1,
                     Name = "Test Chatbot"
@@ -173,7 +173,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             Assert.Equal(message, result.UserMessage);
             Assert.NotNull(result.AgentResponse);
             Assert.NotNull(result.ChatSession);
-            Assert.Equal(chatbotId, result.ChatSession.ChatbotId);
+            Assert.Equal(chatbotId, result.ChatSession.GenAIBotId);
             Assert.True(result.OutputTokens > 0);
             Assert.Equal(2, result.Media.Count);
         }
@@ -190,7 +190,7 @@ namespace Luval.Marin2.ChatAgent.Tests
 
             var service = CreateService((c) =>
             {
-                var cb = new Chatbot()
+                var cb = new GenAIBot()
                 {
                     AccountId = 1,
                     Name = "Test Chatbot"
@@ -209,7 +209,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             Assert.Equal(initialMessage, initialResult.UserMessage);
             Assert.NotNull(initialResult.AgentResponse);
             Assert.NotNull(initialResult.ChatSession);
-            Assert.Equal(chatbotId, initialResult.ChatSession.ChatbotId);
+            Assert.Equal(chatbotId, initialResult.ChatSession.GenAIBotId);
             Assert.True(initialResult.OutputTokens > 0);
 
             Assert.NotNull(followUpResult);
@@ -239,7 +239,7 @@ namespace Luval.Marin2.ChatAgent.Tests
 
             var service = CreateService((c) =>
             {
-                var cb = new Chatbot()
+                var cb = new GenAIBot()
                 {
                     AccountId = 1,
                     Name = "Test Chatbot"
@@ -258,7 +258,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             Assert.Equal(initialMessage, initialResult.UserMessage);
             Assert.NotNull(initialResult.AgentResponse);
             Assert.NotNull(initialResult.ChatSession);
-            Assert.Equal(chatbotId, initialResult.ChatSession.ChatbotId);
+            Assert.Equal(chatbotId, initialResult.ChatSession.GenAIBotId);
             Assert.True(initialResult.OutputTokens > 0);
 
             Assert.NotNull(followUpResult);

@@ -1,5 +1,6 @@
 using Luval.AuthMate.Core;
 using Luval.AuthMate.Core.Interfaces;
+using Luval.AuthMate.Core.Resolver;
 using Luval.AuthMate.Infrastructure.Configuration;
 using Luval.AuthMate.Infrastructure.Data;
 using Luval.AuthMate.Postgres;

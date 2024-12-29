@@ -12,13 +12,13 @@ namespace Luval.Marin2.ChatAgent.Tests
     public class ChatbotStorageServiceTests
     {
 
-        private ChatbotStorageService CreateService(Action<MemoryDataContext>? workOnContext)
+        private GenAIBotStorageService CreateService(Action<MemoryDataContext>? workOnContext)
         {
             var context = new MemoryDataContext();
             context.Initialize();
             var userResolverMock = new Mock<IUserResolver>();
             userResolverMock.Setup(x => x.GetUserEmail()).Returns("user@email.com");
-            var service = new ChatbotStorageService(context, new NullLogger<ChatbotStorageService>(), userResolverMock.Object);
+            var service = new GenAIBotStorageService(context, new NullLogger<GenAIBotStorageService>(), userResolverMock.Object);
 
             workOnContext?.Invoke(context);
 
@@ -32,7 +32,7 @@ namespace Luval.Marin2.ChatAgent.Tests
         {
             // Arrange
             var service = CreateService(null);
-            var chatbot = new Chatbot
+            var chatbot = new GenAIBot
             {
                 Name = "Test Chatbot",
                 AccountId = 1
@@ -69,7 +69,7 @@ namespace Luval.Marin2.ChatAgent.Tests
         {
             var chatbotId = 0ul;
             // Arrange
-            var expectedChatbot = new Chatbot
+            var expectedChatbot = new GenAIBot
             {
                 Name = "Test Chatbot",
                 AccountId = 1
@@ -82,7 +82,7 @@ namespace Luval.Marin2.ChatAgent.Tests
                 chatbotId = context.Chatbots.First().Id;
                 var chatSession = new ChatSession
                 {
-                    ChatbotId = chatbotId,
+                    GenAIBotId = chatbotId,
                     Title = "Test Chat Session",
                     Version = 1
                 };
@@ -124,7 +124,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var chatbotId = 0ul;
             var service = CreateService(context =>
             {
-                var chatbot = new Chatbot
+                var chatbot = new GenAIBot
                 {
                     Name = "Old Chatbot",
                     AccountId = 1
@@ -134,7 +134,7 @@ namespace Luval.Marin2.ChatAgent.Tests
                 chatbotId = chatbot.Id;
             });
 
-            var updatedChatbot = new Chatbot
+            var updatedChatbot = new GenAIBot
             {
                 Id = chatbotId,
                 Name = "Updated Chatbot",
@@ -167,7 +167,7 @@ namespace Luval.Marin2.ChatAgent.Tests
         {
             // Arrange
             var service = CreateService(null);
-            var nonExistentChatbot = new Chatbot
+            var nonExistentChatbot = new GenAIBot
             {
                 Id = 999,
                 Name = "Non-existent Chatbot",
@@ -184,7 +184,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var chatbotId = 0ul;
             var service = CreateService(context =>
             {
-                var chatbot = new Chatbot
+                var chatbot = new GenAIBot
                 {
                     Name = "Chatbot to Delete",
                     AccountId = 1
@@ -224,7 +224,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var chatbotId = 0ul;
             var service = CreateService(context =>
             {
-                var chatbot = new Chatbot
+                var chatbot = new GenAIBot
                 {
                     Name = "Test Chatbot",
                     AccountId = 1
@@ -236,7 +236,7 @@ namespace Luval.Marin2.ChatAgent.Tests
 
             var chatSession = new ChatSession
             {
-                ChatbotId = chatbotId,
+                GenAIBotId = chatbotId,
                 Title = "Test Chat Session"
             };
 
@@ -246,7 +246,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal("Test Chat Session", result.Title);
-            Assert.Equal(chatbotId, result.ChatbotId);
+            Assert.Equal(chatbotId, result.GenAIBotId);
             Assert.NotNull(result.CreatedBy);
             Assert.NotNull(result.UpdatedBy);
             Assert.Equal(1u, result.Version);
@@ -271,7 +271,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var service = CreateService(null);
             var chatSession = new ChatSession
             {
-                ChatbotId = 999,
+                GenAIBotId = 999,
                 Title = "Test Chat Session"
             };
 
@@ -286,7 +286,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var chatSessionId = 0ul;
             var service = CreateService(context =>
             {
-                var chatbot = new Chatbot
+                var chatbot = new GenAIBot
                 {
                     Name = "Test Chatbot",
                     AccountId = 1
@@ -295,7 +295,7 @@ namespace Luval.Marin2.ChatAgent.Tests
                 context.SaveChanges();
                 var chatSession = new ChatSession
                 {
-                    ChatbotId = chatbot.Id,
+                    GenAIBotId = chatbot.Id,
                     Title = "Old Chat Session",
                     Version = 1
                 };
@@ -307,7 +307,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var updatedChatSession = new ChatSession
             {
                 Id = chatSessionId,
-                ChatbotId = 1,
+                GenAIBotId = 1,
                 Title = "Updated Chat Session"
             };
 
@@ -317,7 +317,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal("Updated Chat Session", result.Title);
-            Assert.Equal(1ul, result.ChatbotId);
+            Assert.Equal(1ul, result.GenAIBotId);
             Assert.NotNull(result.UpdatedBy);
             Assert.True(result.UtcUpdatedOn > DateTime.UtcNow.AddMinutes(-10));
         }
@@ -340,7 +340,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var nonExistentChatSession = new ChatSession
             {
                 Id = 999,
-                ChatbotId = 1,
+                GenAIBotId = 1,
                 Title = "Non-existent Chat Session"
             };
 
@@ -355,7 +355,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var chatSessionId = 0ul;
             var service = CreateService(context =>
             {
-                var chatbot = new Chatbot
+                var chatbot = new GenAIBot
                 {
                     Name = "Test Chatbot",
                     AccountId = 1
@@ -364,7 +364,7 @@ namespace Luval.Marin2.ChatAgent.Tests
                 context.SaveChanges();
                 var chatSession = new ChatSession
                 {
-                    ChatbotId = chatbot.Id,
+                    GenAIBotId = chatbot.Id,
                     Title = "Chat Session to Delete",
                     Version = 1
                 };
@@ -403,7 +403,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var chatSessionId = 0ul;
             var service = CreateService(context =>
             {
-                var chatbot = new Chatbot
+                var chatbot = new GenAIBot
                 {
                     Name = "Test Chatbot",
                     AccountId = 1,
@@ -412,7 +412,7 @@ namespace Luval.Marin2.ChatAgent.Tests
                 context.SaveChanges();
                 var chatSession = new ChatSession
                 {
-                    ChatbotId = chatbot.Id,
+                    GenAIBotId = chatbot.Id,
                     Title = "Test Chat Session",
                     Version = 1
                 };
@@ -479,7 +479,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var chatSessionId = 0ul;
             var service = CreateService(context =>
             {
-                var chatbot = new Chatbot
+                var chatbot = new GenAIBot
                 {
                     Name = "Test Chatbot",
                     AccountId = 1
@@ -488,7 +488,7 @@ namespace Luval.Marin2.ChatAgent.Tests
                 context.SaveChanges();
                 var chatSession = new ChatSession
                 {
-                    ChatbotId = chatbot.Id,
+                    GenAIBotId = chatbot.Id,
                     Title = "Test Chat Session",
                     Version = 1
                 };
@@ -547,7 +547,7 @@ namespace Luval.Marin2.ChatAgent.Tests
             var chatMessageId = 0ul;
             var service = CreateService(context =>
             {
-                var chatbot = new Chatbot
+                var chatbot = new GenAIBot
                 {
                     Name = "Test Chatbot",
                     AccountId = 1
@@ -556,7 +556,7 @@ namespace Luval.Marin2.ChatAgent.Tests
                 context.SaveChanges();
                 var chatSession = new ChatSession
                 {
-                    ChatbotId = chatbot.Id,
+                    GenAIBotId = chatbot.Id,
                     Title = "Test Chat Session",
                     Version = 1
                 };

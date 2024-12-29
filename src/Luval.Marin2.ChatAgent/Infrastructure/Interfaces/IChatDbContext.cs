@@ -5,7 +5,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Interfaces
 {
     public interface IChatDbContext
     {
-        DbSet<Chatbot> Chatbots { get; set; }
+        DbSet<GenAIBot> Chatbots { get; set; }
         DbSet<ChatMessage> ChatMessages { get; set; }
         DbSet<ChatSession> ChatSessions { get; set; }
 

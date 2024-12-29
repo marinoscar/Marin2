@@ -27,17 +27,18 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// <summary>
         /// The foreign key referencing the associated Chatbot.
         /// </summary>
-        [Column("ChatbotId")]
-        public ulong ChatbotId { get; set; }
+        [Column("GenAIBotId")]
+        public ulong GenAIBotId { get; set; }
 
         /// <summary>
         /// Navigation property for the associated Chatbot.
         /// </summary>
-        [ForeignKey(nameof(ChatbotId))]
-        public Chatbot Chatbot { get; set; }
+        [ForeignKey(nameof(GenAIBotId))]
+        public GenAIBot Chatbot { get; set; }
 
         /// <summary>
         /// A reference value to the chat session.
+        /// This can be used to reference conversations across different systems.
         /// </summary>
         [Column("ChatReference")]
         public string? ChatReference { get; set; }

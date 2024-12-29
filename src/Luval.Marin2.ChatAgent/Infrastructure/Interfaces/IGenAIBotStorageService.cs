@@ -10,7 +10,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Interfaces
     /// <summary>
     /// Interface for managing chatbot storage operations.
     /// </summary>
-    public interface IChatbotStorageService
+    public interface IGenAIBotStorageService
     {
         /// <summary>
         /// Creates a new chatbot and saves it to the database.
@@ -19,7 +19,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Interfaces
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The created chatbot entity.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the chatbot is null.</exception>
-        Task<Chatbot> CreateChatbotAsync(Chatbot chatbot, CancellationToken cancellationToken = default);
+        Task<GenAIBot> CreateChatbotAsync(GenAIBot chatbot, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves a chatbot by its unique identifier.
@@ -27,7 +27,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Interfaces
         /// <param name="chatbotId">The unique identifier of the chatbot.</param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The chatbot entity if found; otherwise, null.</returns>
-        Task<Chatbot?> GetChatbotAsync(ulong chatbotId, CancellationToken cancellationToken = default);
+        Task<GenAIBot?> GetChatbotAsync(ulong chatbotId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Updates an existing chatbot and saves the changes to the database.
@@ -36,7 +36,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Interfaces
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The updated chatbot entity.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the chatbot is null.</exception>
-        Task<Chatbot> UpdateChatbotAsync(Chatbot chatbot, CancellationToken cancellationToken = default);
+        Task<GenAIBot> UpdateChatbotAsync(GenAIBot chatbot, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes a chatbot by its unique identifier.

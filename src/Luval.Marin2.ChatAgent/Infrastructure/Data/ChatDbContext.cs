@@ -28,7 +28,7 @@ namespace Luval.Marin2.ChatAgent.Infrastructure.Data
         /// <summary>
         /// The DbSet representing the ChatAgent table.
         /// </summary>
-        public DbSet<Chatbot> Chatbots { get; set; }
+        public DbSet<GenAIBot> Chatbots { get; set; }
 
         /// <summary>
         /// The DbSet representing the ChatMessageMedia table.

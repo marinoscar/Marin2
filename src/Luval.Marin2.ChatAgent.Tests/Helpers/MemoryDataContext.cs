@@ -31,7 +31,7 @@ namespace Luval.Marin2.ChatAgent.Tests.Helpers
             Database.OpenConnection();
             Database.EnsureCreated();
 
-            var chatbot = new Chatbot()
+            var chatbot = new GenAIBot()
             {
                 AccountId = 1,
                 Name = "Test Chatbot",

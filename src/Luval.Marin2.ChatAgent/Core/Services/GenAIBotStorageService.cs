@@ -11,19 +11,19 @@ namespace Luval.Marin2.ChatAgent.Core.Services
     /// <summary>
     /// Service for managing chatbot storage operations.
     /// </summary>
-    public class ChatbotStorageService : IChatbotStorageService
+    public class GenAIBotStorageService : IGenAIBotStorageService
     {
         private readonly ChatDbContext _dbContext;
-        private readonly ILogger<ChatbotStorageService> _logger;
+        private readonly ILogger<GenAIBotStorageService> _logger;
         private readonly IUserResolver _userResolver;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChatbotStorageService"/> class.
+        /// Initializes a new instance of the <see cref="GenAIBotStorageService"/> class.
         /// </summary>
         /// <param name="dbContext">The database context.</param>
         /// <param name="logger">The logger instance.</param>
         /// <param name="userResolver">The user resolver instance.</param>
-        public ChatbotStorageService(ChatDbContext dbContext, ILogger<ChatbotStorageService> logger, IUserResolver userResolver)
+        public GenAIBotStorageService(ChatDbContext dbContext, ILogger<GenAIBotStorageService> logger, IUserResolver userResolver)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -39,7 +39,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The created chatbot entity.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the chatbot is null.</exception>
-        public async Task<Chatbot> CreateChatbotAsync(Chatbot chatbot, CancellationToken cancellationToken = default)
+        public async Task<GenAIBot> CreateChatbotAsync(GenAIBot chatbot, CancellationToken cancellationToken = default)
         {
             if (chatbot == null)
             {
@@ -74,7 +74,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         /// <param name="chatbotId">The unique identifier of the chatbot.</param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The chatbot entity if found; otherwise, null.</returns>
-        public async Task<Chatbot?> GetChatbotAsync(ulong chatbotId, CancellationToken cancellationToken = default)
+        public async Task<GenAIBot?> GetChatbotAsync(ulong chatbotId, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Chatbots
                 .Include(x => x.ChatSessions)
@@ -89,7 +89,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The updated chatbot entity.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the chatbot is null.</exception>
-        public async Task<Chatbot> UpdateChatbotAsync(Chatbot chatbot, CancellationToken cancellationToken = default)
+        public async Task<GenAIBot> UpdateChatbotAsync(GenAIBot chatbot, CancellationToken cancellationToken = default)
         {
             if (chatbot == null)
             {
@@ -98,7 +98,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
             }
             try
             {
-                var isTracked = _dbContext.ChangeTracker.Entries<Chatbot>().Any(e => e.Entity.Id == chatbot.Id);
+                var isTracked = _dbContext.ChangeTracker.Entries<GenAIBot>().Any(e => e.Entity.Id == chatbot.Id);
                 chatbot.UpdatedBy = _userResolver.GetUserEmail();
                 chatbot.UtcUpdatedOn = DateTime.UtcNow;
                 chatbot.Version++;
@@ -164,7 +164,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 _logger.LogError("ChatSession cannot be null.");
                 throw new ArgumentNullException(nameof(chatSession));
             }
-            if (chatSession.ChatbotId <= 0)
+            if (chatSession.GenAIBotId <= 0)
             {
                 _logger.LogError("ChatSession needs a valid chatbot reference");
                 throw new ArgumentException(nameof(chatSession.Chatbot));

@@ -7,14 +7,15 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace Luval.Marin2.ChatAgent.Core.Entities
 {
     /// <summary>
     /// Represents a chat agent entity with details such as name, description, image, prompts, and display color.
     /// </summary>
-    [Table("Chatbot")]
-    public class Chatbot
+    [Table("GenAIBot")]
+    public class GenAIBot
     {
         /// <summary>
         /// The unique identifier for the chat agent.
@@ -26,10 +27,13 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
 
         /// <summary>
         /// The foreign key referencing the associated Account.
+        /// This can be used for multi tenancy scenarios.
+        /// Default to 1 for single tenant.
         /// </summary>
         [Required(ErrorMessage = "AccountId is required.")]
         [Column("AccountId")]
-        public ulong AccountId { get; set; }
+        [DefaultValue(1ul)]
+        public ulong AccountId { get; set; } = 1ul;
 
         /// <summary>
         /// The name of the chat agent.
@@ -111,7 +115,7 @@ namespace Luval.Marin2.ChatAgent.Core.Entities
         /// <summary>
         /// Constructor to initialize control fields.
         /// </summary>
-        public Chatbot()
+        public GenAIBot()
         {
             UtcCreatedOn = DateTime.UtcNow;
             Version = 1;

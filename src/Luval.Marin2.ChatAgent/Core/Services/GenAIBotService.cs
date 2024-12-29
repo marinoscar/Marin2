@@ -15,12 +15,12 @@ using System.Threading.Tasks;
 
 namespace Luval.Marin2.ChatAgent.Core.Services
 {
-    public class ChatbotService
+    public class GenAIBotService
     {
 
         private readonly IChatCompletionService _chatService;
-        private readonly IChatbotStorageService _chatbotStorageService;
-        private readonly ILogger<ChatbotService> _logger;
+        private readonly IGenAIBotStorageService _chatbotStorageService;
+        private readonly ILogger<GenAIBotService> _logger;
         private readonly IMediaService _mediaService;
 
         /// <summary>
@@ -33,14 +33,14 @@ namespace Luval.Marin2.ChatAgent.Core.Services
         public event EventHandler<ChatMessageStreamEventArgs>? ChatMessageStream;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChatbotService"/> class.
+        /// Initializes a new instance of the <see cref="GenAIBotService"/> class.
         /// </summary>
         /// <param name="chatCompletionService">The chat completion service used to process chat messages.</param>
         /// <param name="chatbotStorageService">The chatbot storage service used to manage chat sessions and messages.</param>
         /// <param name="mediaService">The media service used to handle media file operations.</param>
         /// <param name="logger">The logger instance used for logging information and errors.</param>
         /// <exception cref="ArgumentNullException">Thrown when any of the required dependencies are null.</exception>
-        public ChatbotService(IChatCompletionService chatCompletionService, IChatbotStorageService chatbotStorageService, IMediaService mediaService, ILogger<ChatbotService> logger)
+        public GenAIBotService(IChatCompletionService chatCompletionService, IGenAIBotStorageService chatbotStorageService, IMediaService mediaService, ILogger<GenAIBotService> logger)
         {
             _chatService = chatCompletionService ?? throw new ArgumentNullException(nameof(chatCompletionService), "Chat completion service cannot be null.");
             _chatbotStorageService = chatbotStorageService ?? throw new ArgumentNullException(nameof(chatbotStorageService), "Chatbot storage service cannot be null.");
@@ -89,7 +89,7 @@ namespace Luval.Marin2.ChatAgent.Core.Services
                 var chatSession = new ChatSession()
                 {
                     Title = sessionTitle,
-                    ChatbotId = chatbotId
+                    GenAIBotId = chatbotId
                 };
                 
 
