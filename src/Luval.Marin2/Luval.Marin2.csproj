@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Core\Services\" />
+    <Folder Include="Infrastructure\Configuration\" />
   </ItemGroup>
 
   <ItemGroup>
