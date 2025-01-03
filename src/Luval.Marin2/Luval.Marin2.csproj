@@ -8,10 +8,10 @@
 
   <ItemGroup>
     <Folder Include="Core\Services\" />
-    <Folder Include="Infrastructure\Configuration\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
   </ItemGroup>
 
