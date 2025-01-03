@@ -20,4 +20,8 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.10.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Luval.Marin2\Luval.Marin2.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,8 +1,10 @@
 using Luval.AuthMate.Infrastructure.Data;
 using Luval.AuthMate.Infrastructure.Logging;
 using Luval.AuthMate.Postgres;
+using Luval.Marin2.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -134,10 +136,44 @@ public static class Extensions
         }
 
         var config = app.Services.GetRequiredService<IConfiguration>();
-        var logger = app.Services.GetService<ILogger<AuthMateContextHelper>>();
+        var logger = app.Services.GetService<ILoggerFactory>();
         var conn = config.GetConnectionString("marin2");
         var authMateContext = new PostgresAuthMateContext(conn ?? "");
-        var contextHelper = new AuthMateContextHelper(authMateContext, logger ?? new NullLogger<AuthMateContextHelper>());
+        var contextHelper = new AuthMateContextHelper(authMateContext, logger.CreateLogger<AuthMateContextHelper>() ?? new NullLogger<AuthMateContextHelper>());
+        
+        Task.Run(async () =>
+        {
+            var log = logger.CreateLogger("AspireExtensions");
+
+            var dbOptions = await WebConfiguration.GetObjectAsync(Environment.GetEnvironmentVariable("azure-storage-connstring") ?? "");
+
+            if (await DatabaseConfiguration.CheckIfExistsAsync(dbOptions))
+            {
+                log.LogInformation("Initializing Database");
+                await contextHelper.InitializeDbAsync(await DatabaseConfiguration.GetAppOwnerEmail(dbOptions));
+            }
+                
+
+            if(await DatabaseConfiguration.CheckIfDoMigrationAsync(dbOptions))
+            {
+                log.LogInformation("Migrating Database");
+                await authMateContext.Database.MigrateAsync();
+            }
+
+            if(await DatabaseConfiguration.CheckIfDeleteAsync(dbOptions))
+            {
+                log.LogInformation("Deleting Database");
+                await authMateContext.Database.EnsureDeletedAsync();
+            }
+
+
+
+        }).GetAwaiter().GetResult();
+
+        var dbOptions = WebConfiguration.GetObjectAsync(Environment.GetEnvironmentVariable("azure-storage-connstring") ?? "")
+            .GetAwaiter().GetResult();
+
+
         contextHelper.InitializeDbAsync("oscar.marin.saenz@gmail.com").Wait();
         return app;
     }
