@@ -22,11 +22,7 @@ namespace Luval.Marin2.UI
 
             //Add Azure App Configuration
             builder.Configuration.AddAzureAppConfiguration(cfg => {
-                cfg.Connect(builder.Configuration["Azure:AppConfig:ConnString"]) // Need to ad secret
-                    .ConfigureRefresh(refresh =>
-                    {
-                        refresh.SetRefreshInterval(TimeSpan.FromMinutes(5));
-                    });
+                cfg.Connect(builder.Configuration["Azure:AppConfig:ConnString"]);
             });
 
             var config = builder.Configuration;
