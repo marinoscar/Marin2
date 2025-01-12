@@ -12,9 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Luval.AuthMate" Version="1.1.1" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.0" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.0" />
+    <PackageReference Include="Luval.AuthMate" Version="1.1.12" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.1" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.1" />
   </ItemGroup>
 
 
