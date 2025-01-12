@@ -13,10 +13,7 @@ Welcome to your new Fluent Blazor app.
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            @foreach (var item in context.User.ToUser().UserRoles)
-            {
-                <p>Role Name: @item.Role.Name</p>
-            }
+            <BotControl />
         </Authorized>
         <NotAuthorized>
             <GoogleLogin />
