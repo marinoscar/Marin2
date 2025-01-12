@@ -33,7 +33,7 @@ namespace Luval.Marin2.UI.Components.Auth
         public string ReturnUrl { get; set; } = "/";
 
         [Parameter]
-        public string NavigateTo { get; set; } = "/auth/google-login";
+        public string NavigateTo { get; set; } = "/api/auth/login";
 
         [Parameter]
         public Color IconColor { get; set; } = Color.Fill;
@@ -46,7 +46,7 @@ namespace Luval.Marin2.UI.Components.Auth
             var info = string.Empty;
             if (DeviceInfo != null) info = DeviceInfo.ToString();
             info = HttpUtility.HtmlEncode(info);
-            NavigationManager.NavigateTo($"{NavigateTo}?deviceInfo={info}&returnUrl={HttpUtility.HtmlEncode(ReturnUrl)}");
+            NavigationManager.NavigateTo($"{NavigateTo}?provider=Google&deviceInfo={info}&returnUrl={HttpUtility.HtmlEncode(ReturnUrl)}");
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
