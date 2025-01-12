@@ -1,4 +1,5 @@
-﻿using Luval.AuthMate.Core.Entities;
+﻿using Luval.AuthMate.Core;
+using Luval.AuthMate.Core.Entities;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.FluentUI.AspNetCore.Components;
@@ -44,8 +45,7 @@ namespace Luval.Marin2.UI.Components.Auth
         private void DoLogin()
         {
             var info = string.Empty;
-            if (DeviceInfo != null) info = DeviceInfo.ToString();
-            info = HttpUtility.HtmlEncode(info);
+            if (DeviceInfo != null) info = DeviceInfo.ToBase64();
             NavigationManager.NavigateTo($"{NavigateTo}?provider=Google&deviceInfo={info}&returnUrl={HttpUtility.HtmlEncode(ReturnUrl)}");
         }
 
