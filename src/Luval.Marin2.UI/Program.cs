@@ -71,8 +71,8 @@ namespace Luval.Marin2.UI
             //Add the Open AI capabilities 
             builder.Services.AddGenAIBotServicesWithPostgres(
                 config.GetValue<string>("OpenAIKey") ?? throw new ArgumentNullException("OpenAI Key is missing in the configuration"),
-                config.GetValue<string>("Azure:Storage:ConnectionString") ?? throw new ArgumentNullException("Azure storage connection string missing in the configuration"),
-                connStr ?? throw new ArgumentNullException("Connection string is missing in the configuration")
+                connStr ?? throw new ArgumentNullException("Connection string is missing in the configuration"),
+                config.GetValue<string>("Azure:Storage:ConnectionString") ?? throw new ArgumentNullException("Azure storage connection string missing in the configuration")
             );
 
             //Add the WorkMate services
