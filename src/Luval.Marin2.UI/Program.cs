@@ -20,9 +20,12 @@ namespace Luval.Marin2.UI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            //Gets the Azure App Configuration connection string from the configuration
+            var azureAppConfigConnString = Environment.GetEnvironmentVariable("AzureAppConnString");
+
             //Add Azure App Configuration
             builder.Configuration.AddAzureAppConfiguration(cfg => {
-                cfg.Connect(builder.Configuration["Azure:AppConfig:ConnString"]);
+                cfg.Connect(azureAppConfigConnString);
             });
 
             var config = builder.Configuration;
@@ -42,13 +45,12 @@ namespace Luval.Marin2.UI
             builder.Services.AddHttpClient();
             builder.Services.AddHttpContextAccessor();
 
-            var key = Environment.GetEnvironmentVariable("authmate-bearingtokenkey");
-            var connStr = builder.Configuration.GetConnectionString("marin2");
+            var connStr = config.GetConnectionString("marin2");
 
             //Add the AuthMate services
             builder.Services.AddAuthMateServices(
                 //The key to use for the bearing token implementation
-                key ?? string.Empty,
+                config["AuthMate:BearingTokenKey"] ?? string.Empty,
                 (s) =>
                 {
                     //returns a local instance of Sqlite
