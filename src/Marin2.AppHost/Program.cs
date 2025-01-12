@@ -14,16 +14,11 @@ var postgres = builder.AddPostgres("db")
 
 var authMateDb = postgres.AddDatabase("marin2");
 
-// Configure the services project
-var servApp = builder.AddProject<Projects.Luval_Marin2_Services>("marin2-services")
-    .WithEnvironment("authmate-bearingtokenkey", authMateKey);
-
 
 // Configure the UI project
 var uiApp = builder.AddProject<Projects.Luval_Marin2_UI>("marin2-ui")
     .WithExternalHttpEndpoints()
     .WaitFor(postgres)
-    .WithReference(servApp)
     .WithReference(authMateDb)
     .WithEnvironment("authmate-bearingtokenkey", authMateKey)
     .WithEnvironment("azure-storage-connstring", azureStorageConnString);
