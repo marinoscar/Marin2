@@ -106,7 +106,8 @@ namespace Luval.Marin2.UI
                 .AddInteractiveServerRenderMode();
 
             // AuthMate: Initialize the database
-            app.InitializeDb();
+            var dbHelper = new DbHelper(config, app.Services);
+            dbHelper.InitializeDb();
 
             app.Run();
         }
