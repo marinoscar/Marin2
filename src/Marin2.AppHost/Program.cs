@@ -22,6 +22,7 @@ var servApp = builder.AddProject<Projects.Luval_Marin2_Services>("marin2-service
 // Configure the UI project
 var uiApp = builder.AddProject<Projects.Luval_Marin2_UI>("marin2-ui")
     .WithExternalHttpEndpoints()
+    .WaitForCompletion(postgres)
     .WithReference(servApp)
     .WithReference(authMateDb)
     .WithEnvironment("authmate-bearingtokenkey", authMateKey)
