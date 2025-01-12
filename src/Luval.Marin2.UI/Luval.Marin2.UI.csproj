@@ -12,13 +12,14 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="FluentGridToolkit" Version="1.0.0" />
-    <PackageReference Include="Luval.AuthMate" Version="1.1.3">
+    <PackageReference Include="Luval.AuthMate" Version="1.1.11">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.*-*">
+    <PackageReference Include="Luval.WorkMate.Components" Version="1.0.2" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.1">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.*-*">
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.1">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
   </ItemGroup>
