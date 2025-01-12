@@ -4,8 +4,11 @@ using Luval.AuthMate.Core.Resolver;
 using Luval.AuthMate.Infrastructure.Configuration;
 using Luval.AuthMate.Infrastructure.Data;
 using Luval.AuthMate.Postgres;
+using Luval.GenAIBotMate.Infrastructure.Configuration;
 using Luval.Marin2.UI.Components;
+using Luval.WorkMate.Infrastructure.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Npgsql;
 
@@ -16,6 +19,16 @@ namespace Luval.Marin2.UI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            //Add Azure App Configuration
+            builder.Configuration.AddAzureAppConfiguration(cfg => {
+                cfg.Connect(builder.Configuration["Azure:AppConfig:ConnString"]) // Need to ad secret
+                    .ConfigureRefresh(refresh =>
+                    {
+                        refresh.SetRefreshInterval(TimeSpan.FromMinutes(5));
+                    });
+            });
+
             var config = builder.Configuration;
 
             builder.AddServiceDefaults();
@@ -25,32 +38,49 @@ namespace Luval.Marin2.UI
                 .AddInteractiveServerComponents();
             builder.Services.AddFluentUIComponents();
 
+            //Add logging services is a required dependency for AuthMate
+            builder.Services.AddLogging();
+
             // AuthMate: Add support for controllers
             builder.Services.AddControllers();
             builder.Services.AddHttpClient();
             builder.Services.AddHttpContextAccessor();
 
-            //registers all of the services needed for AuthMate
-            var connManager = new OAuthConnectionManager(config);
-            var googleConfig = connManager.GetConfiguration("Google");
-
-            var connStr = builder.Configuration.GetConnectionString("marin2");
             var key = Environment.GetEnvironmentVariable("authmate-bearingtokenkey");
-            builder.Services.AddAuthMateServices(key ?? string.Empty,
+            var connStr = builder.Configuration.GetConnectionString("marin2");
+
+            //Add the AuthMate services
+            builder.Services.AddAuthMateServices(
+                //The key to use for the bearing token implementation
+                key ?? string.Empty,
                 (s) =>
                 {
-                    var connStr = builder.Configuration.GetConnectionString("marin2");
+                    //returns a local instance of Sqlite
+                    
                     return new PostgresAuthMateContext(connStr ?? string.Empty);
                 });
 
-            
+
+            //Add the AuthMate Google OAuth provider
             builder.Services.AddAuthMateGoogleAuth(new GoogleOAuthConfiguration()
             {
                 // client id from your config file
-                ClientId = googleConfig.ClientId,
+                ClientId = config["OAuthProviders:Google:ClientId"] ?? throw new ArgumentNullException("The Google client id is required"),
                 // the client secret from your config file
-                ClientSecret = googleConfig.ClientSecret,
+                ClientSecret = config["OAuthProviders:Google:ClientSecret"] ?? throw new ArgumentNullException("The Google client secret is required"),
+                // set the login path in the controller and pass the provider name
+                LoginPath = "/api/auth",
             });
+
+            //Add the Open AI capabilities 
+            builder.Services.AddGenAIBotServicesWithPostgres(
+                config.GetValue<string>("OpenAIKey") ?? throw new ArgumentNullException("OpenAI Key is missing in the configuration"),
+                config.GetValue<string>("Azure:Storage:ConnectionString") ?? throw new ArgumentNullException("Azure storage connection string missing in the configuration"),
+                connStr ?? throw new ArgumentNullException("Connection string is missing in the configuration")
+            );
+
+            //Add the WorkMate services
+            builder.Services.AddWorkMateServices();
 
             var app = builder.Build();
 
