@@ -3,9 +3,8 @@ using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Add secret for the Parameters:authmate-bearingtokenkey to the user screts to set the value
-var authMateKey = builder.AddParameter("authmate-bearingtokenkey", true);
-var azureStorageConnString = builder.AddParameter("azure-storage-connstring", true);
+// Add secret for the Parameters:AzureAppConnString to the user screts to set the value
+var azureAppConfig = builder.AddParameter("AzureAppConnString", true);
 
 // Add postgres instance with pgAdmin
 var postgres = builder.AddPostgres("db")
@@ -20,8 +19,7 @@ var uiApp = builder.AddProject<Projects.Luval_Marin2_UI>("marin2-ui")
     .WithExternalHttpEndpoints()
     .WaitFor(postgres)
     .WithReference(authMateDb)
-    .WithEnvironment("authmate-bearingtokenkey", authMateKey)
-    .WithEnvironment("azure-storage-connstring", azureStorageConnString);
+    .WithEnvironment("AzureAppConnString", azureAppConfig);
 
 
 builder.Build().Run();
