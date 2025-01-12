@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Luval.Marin2.Services\Luval.Marin2.Services.csproj" />
     <ProjectReference Include="..\Luval.Marin2.UI\Luval.Marin2.UI.csproj" />
   </ItemGroup>
 
