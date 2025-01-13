@@ -6,12 +6,14 @@ using Luval.AuthMate.Infrastructure.Data;
 using Luval.AuthMate.Postgres;
 using Luval.AuthMate.SqlServer;
 using Luval.GenAIBotMate.Infrastructure.Configuration;
+using Luval.GenAIBotMate.Infrastructure.Data;
 using Luval.Marin2.UI.Components;
 using Luval.WorkMate.Infrastructure.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Npgsql;
+using System.Text;
 
 namespace Luval.Marin2.UI
 {
@@ -111,6 +113,9 @@ namespace Luval.Marin2.UI
 
             // AuthMate: Initialize the database
             var dbHelper = new DbHelper(config, app.Services);
+
+            //When using sql server
+            dbHelper.SqlServerCheckIfDatabaseExists(connStr);
             dbHelper.InitializeDb();
 
             app.Run();
