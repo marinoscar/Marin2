@@ -27,6 +27,7 @@
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.1">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="172.52.0" />
   </ItemGroup>
 
   <ItemGroup>
