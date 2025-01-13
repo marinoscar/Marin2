@@ -108,6 +108,7 @@ namespace Luval.Marin2.UI
                 if (result <= 0)
                 {
                     _logger.LogInformation("Database does not exist, creating it");
+                    conn.ConnectionString = builder.ConnectionString;
                     conn.ExecuteAsync($"CREATE DATABASE {dbName}").GetAwaiter().GetResult();
                     _logger.LogInformation("Database created");
                 }
