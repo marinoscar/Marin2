@@ -11,6 +11,7 @@
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
+    <PackageReference Include="DbConnectionMate" Version="1.0.1" />
     <PackageReference Include="FluentGridToolkit" Version="1.0.0" />
     <PackageReference Include="Luval.AuthMate" Version="1.1.13">
       <TreatAsUsed>true</TreatAsUsed>
