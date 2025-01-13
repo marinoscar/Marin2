@@ -10,7 +10,6 @@ var azureAppConfig = builder.AddParameter("AzureAppConnString", true);
 
 
 var sql = builder.AddSqlServer("sql")
-                 .WithLifetime(ContainerLifetime.Persistent)
                  .WithDataVolume();
 
 var marin2Db = sql.AddDatabase("marin2");
