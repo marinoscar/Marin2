@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\AuthMate\src\Luval.AuthMate\Luval.AuthMate.csproj" />
     <ProjectReference Include="..\Luval.Marin2.UI.Components\Luval.Marin2.UI.Components.csproj" />
     <ProjectReference Include="..\Luval.Marin2\Luval.Marin2.csproj" />
     <ProjectReference Include="..\Marin2.ServiceDefaults\Marin2.ServiceDefaults.csproj" />
