@@ -21,6 +21,7 @@ namespace Luval.Marin2.UI
             var builder = WebApplication.CreateBuilder(args);
 
             //Gets the Azure App Configuration connection string from the configuration
+            //All configuration values are on https://portal.azure.com/ App Configuration Marin2
             var azureAppConfigConnString = Environment.GetEnvironmentVariable("AzureAppConnString");
 
             //Add Azure App Configuration
