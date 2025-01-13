@@ -1,7 +1,6 @@
 using Luval.AuthMate.Infrastructure.Data;
 using Luval.AuthMate.Infrastructure.Logging;
 using Luval.AuthMate.Postgres;
-using Luval.Marin2.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
