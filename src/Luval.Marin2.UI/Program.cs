@@ -4,6 +4,7 @@ using Luval.AuthMate.Core.Resolver;
 using Luval.AuthMate.Infrastructure.Configuration;
 using Luval.AuthMate.Infrastructure.Data;
 using Luval.AuthMate.Postgres;
+using Luval.AuthMate.SqlServer;
 using Luval.GenAIBotMate.Infrastructure.Configuration;
 using Luval.Marin2.UI.Components;
 using Luval.WorkMate.Infrastructure.Configuration;
@@ -56,7 +57,7 @@ namespace Luval.Marin2.UI
                 {
                     //returns a local instance of Sqlite
                     
-                    return new PostgresAuthMateContext(connStr ?? string.Empty);
+                    return new SqlServerAuthMateContext(connStr ?? string.Empty);
                 });
 
 
@@ -72,7 +73,7 @@ namespace Luval.Marin2.UI
             });
 
             //Add the Open AI capabilities 
-            builder.Services.AddGenAIBotServicesWithPostgres(
+            builder.Services.AddGenAIBotServicesWithSqlServer(
                 config.GetValue<string>("OpenAIKey") ?? throw new ArgumentNullException("OpenAI Key is missing in the configuration"),
                 connStr ?? throw new ArgumentNullException("Connection string is missing in the configuration"),
                 config.GetValue<string>("Azure:Storage:ConnectionString") ?? throw new ArgumentNullException("Azure storage connection string missing in the configuration")
