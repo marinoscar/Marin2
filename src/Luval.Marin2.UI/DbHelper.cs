@@ -6,6 +6,11 @@ using Luval.DbConnectionMate;
 using Luval.GenAIBotMate.Infrastructure.Data;
 using Luval.GenAIBotMate.Infrastructure.Interfaces;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management;
+using Microsoft.SqlServer.Management.Smo;
+using System.Text;
 
 namespace Luval.Marin2.UI
 {
@@ -95,6 +100,7 @@ namespace Luval.Marin2.UI
         {
             try
             {
+                LogConnectionString(connectionString);
                 _logger.LogInformation("Checking if the database exists");
                 var builder = new SqlConnectionStringBuilder(connectionString);
                 var dbName = builder.InitialCatalog;
@@ -108,14 +114,74 @@ namespace Luval.Marin2.UI
                 if (result <= 0)
                 {
                     _logger.LogInformation("Database does not exist, creating it");
-                    conn.ConnectionString = builder.ConnectionString;
-                    conn.ExecuteAsync($"CREATE DATABASE {dbName}").GetAwaiter().GetResult();
-                    _logger.LogInformation("Database created");
+                    RunDatabaseScript(dbName, builder.ConnectionString);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while checking or creating the database.");
+                throw;
+            }
+        }
+
+        private void LogConnectionString(string connectionString)
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+            builder.Password = "********";
+            _logger.LogInformation($"Connection-String: {builder.ConnectionString}");
+        }
+
+        private string GetCreateDatabaseScript(string dbName)
+        {
+            return $@"
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '{dbName}')
+BEGIN
+    CREATE DATABASE {dbName};
+END;
+GO
+
+USE {dbName};
+GO
+";
+        }
+
+        private string GetFullScript(string dbName)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(GetCreateDatabaseScript(dbName));
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                sb.AppendLine();
+                sb.AppendLine(scope.ServiceProvider.GetRequiredService<IAuthMateContext>().Database.GenerateCreateScript());
+                sb.AppendLine();
+                sb.AppendLine(scope.ServiceProvider.GetRequiredService<IChatDbContext>().Database.GenerateCreateScript());
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Runs the provided SQL script to create and initialize the database.
+        /// </summary>
+        /// <param name="dbName">The name of the database to create.</param>
+        /// <param name="masterConnString">The connection string to the master database.</param>
+        protected virtual void RunDatabaseScript(string dbName, string masterConnString)
+        {
+            try
+            {
+                _logger.LogInformation($"Running script to create and initialize the database: {dbName}");
+
+                using (SqlConnection connection = new SqlConnection(masterConnString))
+                {
+                    var script = GetFullScript(dbName);
+                    var server = new Server(new ServerConnection(connection));
+                    server.ConnectionContext.ExecuteNonQuery(script);
+                }
+
+                _logger.LogInformation($"Successfully ran script to create and initialize the database: {dbName}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while running the script to create and initialize the database: {dbName}");
                 throw;
             }
         }
