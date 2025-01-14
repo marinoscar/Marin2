@@ -17,14 +17,14 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="Luval.AuthMate.SqlServer" Version="1.1.13" />
-    <PackageReference Include="Luval.GenAIBotMate" Version="1.0.21" />
-    <PackageReference Include="Luval.GenAIBotMate.Components" Version="1.0.18" />
+    <PackageReference Include="Luval.GenAIBotMate" Version="1.0.22" />
+    <PackageReference Include="Luval.GenAIBotMate.Components" Version="1.0.19" />
     <PackageReference Include="Luval.WorkMate.Components" Version="1.0.4" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.1.0-preview" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.1">
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.2">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.1">
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.2">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="172.52.0" />

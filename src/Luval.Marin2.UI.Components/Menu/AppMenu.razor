@@ -1,0 +1,18 @@
+﻿@using System.Diagnostics
+@using Luval.Marin2.UI.Components.Style
+@using Microsoft.AspNetCore.Components.Routing
+
+
+<FluentStack Orientation="Orientation.Vertical" Style="height: 90vh;">
+    <FluentAppBar Style="background-color: var(--neutral-layer-2);">
+
+        <FluentAppBarItem Href="/"
+                          Match="NavLinkMatch.All"
+                          IconRest="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size32.Home())"
+                          Text="Home" />
+    </FluentAppBar>
+</FluentStack>
+
+@code {
+
+}
