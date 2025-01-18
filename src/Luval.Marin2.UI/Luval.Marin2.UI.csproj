@@ -31,6 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\GenAIBotMate\src\Luval.GenAIBotMate.Components\Luval.GenAIBotMate.Components.csproj" />
+    <ProjectReference Include="..\..\..\GenAIBotMate\src\Luval.GenAIBotMate\Luval.GenAIBotMate.csproj" />
     <ProjectReference Include="..\Luval.Marin2.UI.Components\Luval.Marin2.UI.Components.csproj" />
     <ProjectReference Include="..\Luval.Marin2\Luval.Marin2.csproj" />
     <ProjectReference Include="..\Marin2.ServiceDefaults\Marin2.ServiceDefaults.csproj" />
