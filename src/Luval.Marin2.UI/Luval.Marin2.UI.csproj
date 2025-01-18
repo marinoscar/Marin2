@@ -17,22 +17,20 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="Luval.AuthMate.SqlServer" Version="1.1.13" />
-    <PackageReference Include="Luval.GenAIBotMate" Version="1.0.22" />
-    <PackageReference Include="Luval.GenAIBotMate.Components" Version="1.0.19" />
+    <PackageReference Include="Luval.GenAIBotMate" Version="1.0.23" />
+    <PackageReference Include="Luval.GenAIBotMate.Components" Version="1.0.20" />
     <PackageReference Include="Luval.WorkMate.Components" Version="1.0.4" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.1.0-preview" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.2">
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.3">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.2">
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.3">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="172.52.0" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="172.61.0-preview" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\GenAIBotMate\src\Luval.GenAIBotMate.Components\Luval.GenAIBotMate.Components.csproj" />
-    <ProjectReference Include="..\..\..\GenAIBotMate\src\Luval.GenAIBotMate\Luval.GenAIBotMate.csproj" />
     <ProjectReference Include="..\Luval.Marin2.UI.Components\Luval.Marin2.UI.Components.csproj" />
     <ProjectReference Include="..\Luval.Marin2\Luval.Marin2.csproj" />
     <ProjectReference Include="..\Marin2.ServiceDefaults\Marin2.ServiceDefaults.csproj" />
