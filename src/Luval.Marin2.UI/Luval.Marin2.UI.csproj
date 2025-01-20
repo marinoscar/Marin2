@@ -17,8 +17,8 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="Luval.AuthMate.SqlServer" Version="1.1.13" />
-    <PackageReference Include="Luval.GenAIBotMate" Version="1.0.23" />
-    <PackageReference Include="Luval.GenAIBotMate.Components" Version="1.0.20" />
+    <PackageReference Include="Luval.GenAIBotMate" Version="1.0.24" />
+    <PackageReference Include="Luval.GenAIBotMate.Components" Version="1.0.21" />
     <PackageReference Include="Luval.WorkMate.Components" Version="1.0.4" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.1.0-preview" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.3">
